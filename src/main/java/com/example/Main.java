@@ -44,8 +44,9 @@ public class Main {
   @Autowired
   private DataSource dataSource;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     SpringApplication.run(Main.class, args);
+    HelloBot.run();
   }
 
   @RequestMapping("/")

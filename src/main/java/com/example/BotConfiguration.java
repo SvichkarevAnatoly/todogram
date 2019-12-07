@@ -15,26 +15,30 @@ import java.net.PasswordAuthentication;
 @Configuration
 public class BotConfiguration {
 
-    // TODO: 07.12.2019 Превратить в бины
-    private static final SecurityConfig securityConfig = ConfigCache.getOrCreate(SecurityConfig.class);
-    private static final BotConfig botConfig = ConfigCache.getOrCreate(BotConfig.class);
-    private final GifService gifService = new GifService();
-
-    private static String BOT_NAME = "Никита";
-    private static String BOT_TOKEN = securityConfig.botToken();
-
-    private static String PROXY_HOST = botConfig.proxyHost();
-    private static Integer PROXY_PORT = botConfig.proxyPort();
-    private static String PROXY_USER = securityConfig.proxyUser();
-    private static String PROXY_PASSWORD = securityConfig.proxyPassword();
-
     @Bean
     public GifService gifService() {
         return new GifService();
     }
 
     @Bean
-    public HelloBot helloBot() {
+    public SecurityConfig securityConfig() {
+        return ConfigCache.getOrCreate(SecurityConfig.class);
+    }
+
+    @Bean
+    public BotConfig botConfig() {
+        return ConfigCache.getOrCreate(BotConfig.class);
+    }
+
+    @Bean
+    public HelloBot helloBot(SecurityConfig securityConfig, BotConfig botConfig) {
+        final String BOT_TOKEN = securityConfig.botToken();
+
+        final String PROXY_HOST = botConfig.proxyHost();
+        final int PROXY_PORT = botConfig.proxyPort();
+        final String PROXY_USER = securityConfig.proxyUser();
+        final String PROXY_PASSWORD = securityConfig.proxyPassword();
+
         HelloBot bot = null;
         try {
             // Create the Authenticator that will return auth's parameters for proxy authentication
@@ -58,7 +62,7 @@ public class BotConfiguration {
             botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
 
             // Register your newly created AbilityBot
-            bot = new HelloBot(BOT_TOKEN, BOT_NAME, botOptions);
+            bot = new HelloBot(BOT_TOKEN, "Никита", botOptions);
 
             botsApi.registerBot(bot);
 

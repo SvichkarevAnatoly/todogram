@@ -19,22 +19,20 @@ import java.net.URL;
 
 public class HelloBot extends AbilityBot {
 
-    private static final SecurityConfig config = ConfigFactory.create(SecurityConfig.class);
+    // TODO: 07.12.2019 Превратить в бины
+    private static final SecurityConfig securityConfig = ConfigFactory.create(SecurityConfig.class);
+    private static final BotConfig botConfig = ConfigFactory.create(BotConfig.class);
 
     private static String BOT_NAME = "Никита";
-    private static String BOT_TOKEN = config.botToken();
+    private static String BOT_TOKEN = securityConfig.botToken();
 
-    private static String PROXY_HOST = "en.socksy.seriyps.ru" /* proxy host */;
-    private static Integer PROXY_PORT = 7777 /* proxy port */;
-    private static String PROXY_USER = config.proxyUser();
-    private static String PROXY_PASSWORD = config.proxyPassword();
+    private static String PROXY_HOST = botConfig.proxyHost();
+    private static Integer PROXY_PORT = botConfig.proxyPort();
+    private static String PROXY_USER = securityConfig.proxyUser();
+    private static String PROXY_PASSWORD = securityConfig.proxyPassword();
 
-    private static int gifOffset = 0;
-    private static final String queryWelcomeInRussian = "%D0%B4%D0%BE%D0%B1%D1%80%D0%BE%20%D0%BF%D0%BE%D0%B6%D0%B0%D0%BB%D0%BE%D0%B2%D0%B0%D1%82%D1%8C";
-    private static final String requestUrl = "https://api.giphy.com/v1/gifs/search" +
-            "?api_key=" + config.giphyApiKey() +
-            "&q=" + queryWelcomeInRussian +
-            "&limit=1&rating=G&lang=ru&offset=";
+    private static int gifOffset = botConfig.gifInitOffset();
+    private static final String requestUrlTemplate = botConfig.gifRequestUrlTemplate();
 
     protected HelloBot(String botToken, String botUsername, DefaultBotOptions botOptions) {
         super(botToken, botUsername, botOptions);
@@ -93,7 +91,10 @@ public class HelloBot extends AbilityBot {
     }
 
     private String getGifUrl() {
-        final String json = getJson(requestUrl + gifOffset++);
+        final String url = requestUrlTemplate + gifOffset + "&api_key=" + securityConfig.giphyApiKey();
+        gifOffset++;
+
+        final String json = getJson(url);
         return JsonPath.read(json, "$.data[0].images.fixed_height.url");
     }
 

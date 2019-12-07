@@ -18,8 +18,8 @@ import static java.util.Arrays.asList;
 
 public class HelloBot extends AbilityBot {
 
-    private static String BOT_NAME = "Добрый бот";
-    private static String BOT_TOKEN = "916224749:AAGjNbjU40QB0xGW7yOYLmnkqLWFoRAVmq4";
+    private static String BOT_NAME = "Никита";
+    private static String BOT_TOKEN = System.getenv().get("BOT_TOKEN");
 
     private static String PROXY_HOST = "en.socksy.seriyps.ru" /* proxy host */;
     private static Integer PROXY_PORT = 7777 /* proxy port */;

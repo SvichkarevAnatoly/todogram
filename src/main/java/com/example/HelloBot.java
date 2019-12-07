@@ -1,6 +1,7 @@
 package com.example;
 
 import com.jayway.jsonpath.JsonPath;
+import org.aeonbits.owner.ConfigFactory;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
@@ -18,8 +19,10 @@ import java.net.URL;
 
 public class HelloBot extends AbilityBot {
 
+    private static final BotConfig config = ConfigFactory.create(BotConfig.class);
+
     private static String BOT_NAME = "Никита";
-    private static String BOT_TOKEN = System.getenv().get("BOT_TOKEN");
+    private static String BOT_TOKEN = config.botToken();
 
     private static String PROXY_HOST = "en.socksy.seriyps.ru" /* proxy host */;
     private static Integer PROXY_PORT = 7777 /* proxy port */;
@@ -29,7 +32,7 @@ public class HelloBot extends AbilityBot {
     private static int gifOffset = 0;
     private static final String queryWelcomeInRussian = "%D0%B4%D0%BE%D0%B1%D1%80%D0%BE%20%D0%BF%D0%BE%D0%B6%D0%B0%D0%BB%D0%BE%D0%B2%D0%B0%D1%82%D1%8C";
     private static final String requestUrl = "https://api.giphy.com/v1/gifs/search" +
-            "?api_key=" + System.getenv().get("GIPHY_API_KEY") +
+            "?api_key=" + config.giphyApiKey() +
             "&q=" + queryWelcomeInRussian +
             "&limit=1&rating=G&lang=ru&offset=";
 

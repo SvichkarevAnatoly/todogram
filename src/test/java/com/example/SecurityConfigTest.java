@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.config.SecurityConfig;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

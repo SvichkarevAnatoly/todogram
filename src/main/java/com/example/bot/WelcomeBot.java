@@ -1,4 +1,4 @@
-package com.example;
+package com.example.bot;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;

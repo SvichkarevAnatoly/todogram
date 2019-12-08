@@ -1,5 +1,7 @@
-package com.example;
+package com.example.bot;
 
+import com.example.config.BotConfig;
+import com.example.config.SecurityConfig;
 import com.jayway.jsonpath.JsonPath;
 import org.aeonbits.owner.ConfigCache;
 

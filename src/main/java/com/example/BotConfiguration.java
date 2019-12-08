@@ -1,5 +1,10 @@
 package com.example;
 
+import com.example.bot.GifService;
+import com.example.bot.InnerAbilityBot;
+import com.example.bot.WelcomeBot;
+import com.example.config.BotConfig;
+import com.example.config.SecurityConfig;
 import org.aeonbits.owner.ConfigCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.config.BotConfig;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.jupiter.api.Test;
 

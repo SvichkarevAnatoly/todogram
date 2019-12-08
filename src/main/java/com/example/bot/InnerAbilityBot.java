@@ -1,4 +1,4 @@
-package com.example;
+package com.example.bot;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.abilitybots.api.bot.AbilityBot;

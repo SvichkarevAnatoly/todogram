@@ -11,6 +11,7 @@ import java.net.URLEncoder;
 
 import static org.junit.Assert.assertEquals;
 
+// TODO: можно удалить
 class WelcomeBotTest {
     @Test
     void name() {

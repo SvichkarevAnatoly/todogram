@@ -44,9 +44,6 @@ public class Main {
     @Autowired
     private DataSource dataSource;
 
-    @Autowired
-    private HelloBot helloBot;
-
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
     }

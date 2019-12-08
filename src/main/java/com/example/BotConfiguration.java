@@ -31,44 +31,40 @@ public class BotConfiguration {
     }
 
     @Bean
-    public HelloBot helloBot(SecurityConfig securityConfig, BotConfig botConfig) {
+    public DefaultBotOptions botOptions(SecurityConfig securityConfig, BotConfig botConfig) {
+        // TODO: Подумать куда вынести этот код в отдельное место
+        Authenticator.setDefault(new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(
+                        securityConfig.proxyUser(),
+                        securityConfig.proxyPassword().toCharArray());
+            }
+        });
+        ApiContextInitializer.init();
+
+        DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
+        botOptions.setProxyHost(botConfig.proxyHost());
+        botOptions.setProxyPort(botConfig.proxyPort());
+        botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
+
+        return botOptions;
+    }
+
+    @Bean
+    public HelloBot helloBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
         final String BOT_TOKEN = securityConfig.botToken();
+        return new HelloBot(BOT_TOKEN, "Никита", botOptions);
+    }
 
-        final String PROXY_HOST = botConfig.proxyHost();
-        final int PROXY_PORT = botConfig.proxyPort();
-        final String PROXY_USER = securityConfig.proxyUser();
-        final String PROXY_PASSWORD = securityConfig.proxyPassword();
-
-        HelloBot bot = null;
+    @Bean
+    public TelegramBotsApi telegramBotsApi(HelloBot helloBot) {
+        TelegramBotsApi botsApi = new TelegramBotsApi();
         try {
-            // Create the Authenticator that will return auth's parameters for proxy authentication
-            Authenticator.setDefault(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(PROXY_USER, PROXY_PASSWORD.toCharArray());
-                }
-            });
-            ApiContextInitializer.init();
-
-            // Create the TelegramBotsApi object to register your bots
-            TelegramBotsApi botsApi = new TelegramBotsApi();
-
-            // Set up Http proxy
-            DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
-
-            botOptions.setProxyHost(PROXY_HOST);
-            botOptions.setProxyPort(PROXY_PORT);
-            // Select proxy type: [HTTP|SOCKS4|SOCKS5] (default: NO_PROXY)
-            botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
-
-            // Register your newly created AbilityBot
-            bot = new HelloBot(BOT_TOKEN, "Никита", botOptions);
-
-            botsApi.registerBot(bot);
-
+            botsApi.registerBot(helloBot);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        return bot;
+        return botsApi;
     }
 }

@@ -9,6 +9,9 @@ public interface SecurityConfig extends Config {
     @Key("BOT_TOKEN")
     String botToken();
 
+    @Key("BOT_NAME")
+    String botName();
+
     @Key("GIPHY_API_KEY")
     String giphyApiKey();
 

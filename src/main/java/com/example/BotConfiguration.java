@@ -53,8 +53,10 @@ public class BotConfiguration {
 
     @Bean
     public HelloBot helloBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
-        final String BOT_TOKEN = securityConfig.botToken();
-        return new HelloBot(BOT_TOKEN, "Никита", botOptions);
+        return new HelloBot(
+                securityConfig.botToken(),
+                securityConfig.botName(),
+                botOptions);
     }
 
     @Bean

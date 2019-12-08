@@ -34,6 +34,13 @@ class SecurityConfigTest {
     }
 
     @Test
+    void botName() {
+        assertThat(config.botName())
+                .isNotBlank()
+                .isNotEqualTo(TEMPLATE_VALUE);
+    }
+
+    @Test
     void giphyApiKey() {
         assertThat(config.giphyApiKey())
                 .isNotBlank()

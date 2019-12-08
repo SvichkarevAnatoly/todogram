@@ -3,6 +3,7 @@ package com.example;
 import com.example.bot.CaptionService;
 import com.example.bot.GifService;
 import com.example.bot.InnerAbilityBot;
+import com.example.bot.RequestService;
 import com.example.bot.WelcomeBot;
 import com.example.config.BotConfig;
 import com.example.config.SecurityConfig;
@@ -19,17 +20,23 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 
+// TODO: попробовать контекст создать на autowired, предварительно попробовав с тестами
 @Configuration
 public class BotConfiguration {
 
     @Bean
-    public GifService gifService() {
-        return new GifService();
+    public RequestService requestService() {
+        return new RequestService();
     }
 
     @Bean
-    public CaptionService captionService() {
-        return new CaptionService();
+    public GifService gifService(SecurityConfig securityConfig, BotConfig botConfig, RequestService requestService) {
+        return new GifService(securityConfig, botConfig, requestService);
+    }
+
+    @Bean
+    public CaptionService captionService(BotConfig botConfig, RequestService requestService) {
+        return new CaptionService(botConfig, requestService);
     }
 
     @Bean

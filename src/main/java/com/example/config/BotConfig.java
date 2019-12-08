@@ -35,4 +35,17 @@ public interface BotConfig extends Config {
                 "?q=" + gifQuery() +
                 "&limit=1&rating=G&lang=ru&offset=";
     }
+
+    default String sloganWelcomeTemplate() {
+        return "Добро пожаловать, %s!\n\n";
+    }
+
+    default String sloganQuery() {
+        return "Мониторинг";
+    }
+
+    default String sloganRequestUrlTemplate() {
+        return "http://free-generator.ru/generator.php" +
+                "?action=slogan&category=28&name=";
+    }
 }

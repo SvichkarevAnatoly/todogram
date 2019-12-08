@@ -52,18 +52,18 @@ public class BotConfiguration {
     }
 
     @Bean
-    public HelloBot helloBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
-        return new HelloBot(
+    public WelcomeBot welcomeBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
+        return new WelcomeBot(
                 securityConfig.botToken(),
                 securityConfig.botName(),
                 botOptions);
     }
 
     @Bean
-    public TelegramBotsApi telegramBotsApi(HelloBot helloBot) {
+    public TelegramBotsApi telegramBotsApi(WelcomeBot welcomeBot) {
         TelegramBotsApi botsApi = new TelegramBotsApi();
         try {
-            botsApi.registerBot(helloBot);
+            botsApi.registerBot(welcomeBot);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

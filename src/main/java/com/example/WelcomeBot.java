@@ -7,11 +7,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class HelloBot extends AbilityBot {
+public class WelcomeBot extends AbilityBot {
 
     private GifService gifService;
 
-    public HelloBot(String botToken, String botUsername, DefaultBotOptions botOptions) {
+    public WelcomeBot(String botToken, String botUsername, DefaultBotOptions botOptions) {
         super(botToken, botUsername, botOptions);
     }
 
@@ -20,6 +20,7 @@ public class HelloBot extends AbilityBot {
         this.gifService = gifService;
     }
 
+    @Override
     public void onUpdateReceived(Update update) {
         if (update.getMessage().getNewChatMembers().isEmpty()) {
             return;

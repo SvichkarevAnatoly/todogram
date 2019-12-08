@@ -3,6 +3,7 @@ package com.example;
 import org.aeonbits.owner.ConfigCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.ApiContext;
@@ -52,18 +53,23 @@ public class BotConfiguration {
     }
 
     @Bean
-    public WelcomeBot welcomeBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
-        return new WelcomeBot(
+    public WelcomeBot welcomeBot(GifService gifService) {
+        return new WelcomeBot(gifService);
+    }
+
+    @Bean
+    public AbilityBot abilityBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
+        return new InnerAbilityBot(
                 securityConfig.botToken(),
                 securityConfig.botName(),
                 botOptions);
     }
 
     @Bean
-    public TelegramBotsApi telegramBotsApi(WelcomeBot welcomeBot) {
+    public TelegramBotsApi telegramBotsApi(AbilityBot innerAbilityBot) {
         TelegramBotsApi botsApi = new TelegramBotsApi();
         try {
-            botsApi.registerBot(welcomeBot);
+            botsApi.registerBot(innerAbilityBot);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

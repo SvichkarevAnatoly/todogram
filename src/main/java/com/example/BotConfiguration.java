@@ -58,7 +58,7 @@ public class BotConfiguration {
     }
 
     @Bean
-    public AbilityBot abilityBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
+    public InnerAbilityBot innerAbilityBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
         return new InnerAbilityBot(
                 securityConfig.botToken(),
                 securityConfig.botName(),

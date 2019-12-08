@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.bot.CaptionService;
 import com.example.bot.GifService;
 import com.example.bot.InnerAbilityBot;
 import com.example.bot.WelcomeBot;
@@ -24,6 +25,11 @@ public class BotConfiguration {
     @Bean
     public GifService gifService() {
         return new GifService();
+    }
+
+    @Bean
+    public CaptionService captionService() {
+        return new CaptionService();
     }
 
     @Bean
@@ -58,8 +64,8 @@ public class BotConfiguration {
     }
 
     @Bean
-    public WelcomeBot welcomeBot(GifService gifService) {
-        return new WelcomeBot(gifService);
+    public WelcomeBot welcomeBot(GifService gifService, CaptionService captionService) {
+        return new WelcomeBot(gifService, captionService);
     }
 
     @Bean

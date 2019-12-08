@@ -25,6 +25,7 @@ public class InnerAbilityBot extends AbilityBot {
         this.welcomeBot = welcomeBot;
     }
 
+    @Override
     public int creatorId() {
         return 0;
     }

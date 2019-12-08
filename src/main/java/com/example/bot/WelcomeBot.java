@@ -29,7 +29,7 @@ public class WelcomeBot {
         final SendAnimation animation = new SendAnimation()
                 .setChatId(update.getMessage().getChatId())
                 .setAnimation(gifService.getGifUrl())
-                .setCaption(captionService.getCaption());
+                .setCaption(captionService.getCaption(update));
 
         innerAbilityBot.sendAnimation(animation);
     }

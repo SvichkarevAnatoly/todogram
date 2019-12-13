@@ -4,6 +4,7 @@ import org.aeonbits.owner.Config;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Random;
 
 public interface BotConfig extends Config {
 
@@ -15,8 +16,8 @@ public interface BotConfig extends Config {
         return 7777;
     }
 
-    default int gifInitOffset() {
-        return 0;
+    default int gifOffset() {
+        return new Random().nextInt(100);
     }
 
     default String gifQuery() {

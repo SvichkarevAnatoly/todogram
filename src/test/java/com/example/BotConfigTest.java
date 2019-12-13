@@ -24,8 +24,10 @@ class BotConfigTest {
 
     @Test
     void gitInitOffset() {
-        assertThat(config.gifInitOffset())
-                .isGreaterThanOrEqualTo(0);
+        assertThat(config.gifOffset())
+                .isGreaterThanOrEqualTo(0)
+                .isLessThan(100);
+        // TODO: тест на рандом
     }
 
     @Test

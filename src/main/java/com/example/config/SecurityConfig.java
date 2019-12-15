@@ -3,7 +3,10 @@ package com.example.config;
 import org.aeonbits.owner.Config;
 import org.aeonbits.owner.Config.Sources;
 
-@Sources("system:env")
+@Sources({
+        "file:.env", // Для локального запуска и тестов
+        "system:env" // Для запуска на heroku
+})
 public interface SecurityConfig extends Config {
 
     @Key("BOT_TOKEN")

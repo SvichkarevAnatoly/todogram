@@ -2,22 +2,41 @@ package com.example.bot;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.abilitybots.api.bot.AbilityBot;
+import org.telegram.abilitybots.api.db.DBContext;
+import org.telegram.abilitybots.api.objects.Ability;
+import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.function.Function;
+
+import static org.telegram.abilitybots.api.objects.Locality.ALL;
+import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
 /**
  * Имплементация телеграмм бота, отделённая от бизнес логики
  */
 public class InnerAbilityBot extends AbilityBot {
 
-    // TODO: Плохо, что inner знает о welcome bot, надо как-то подписать welcome на обновления
     private WelcomeBot welcomeBot;
+    /**
+     * Для тестирования дурацкой реализации telegram api
+     */
+    private Function<SendAnimation, SendAnimation> proxy;
+
+    public void setProxy(Function<SendAnimation, SendAnimation> proxy) {
+        this.proxy = proxy;
+    }
 
     public InnerAbilityBot(String botToken, String botUsername, DefaultBotOptions botOptions) {
         super(botToken, botUsername, botOptions);
+    }
+
+    // Для тестов
+    public InnerAbilityBot(String botToken, String botUsername, DBContext db) {
+        super(botToken, botUsername, db);
     }
 
     @Autowired
@@ -25,23 +44,36 @@ public class InnerAbilityBot extends AbilityBot {
         this.welcomeBot = welcomeBot;
     }
 
+    // Для тестов
+    void setSender(MessageSender sender) {
+        this.sender = sender;
+    }
+
     @Override
     public int creatorId() {
         return 0;
     }
 
-    @Override
-    public void onUpdateReceived(Update update) {
-        if (update.getMessage().getNewChatMembers().isEmpty()) {
-            return;
-        }
-
-        welcomeBot.onNewChatMembers(update);
+    @SuppressWarnings("unchecked")
+    public Ability sayWelcome() {
+        return Ability.builder()
+                .name(DEFAULT)
+                .flag(update -> !update.getMessage().getNewChatMembers().isEmpty())
+                .input(0)
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> sendAnimation(welcomeBot.onNewChatMembers(ctx.update())))
+                .build();
     }
 
-    public Message sendAnimation(SendAnimation sendAnimation) {
+    private Message sendAnimation(SendAnimation sendAnimation) {
         try {
-            return execute(sendAnimation);
+            if (proxy == null) {
+                return execute(sendAnimation);
+            } else {
+                proxy.apply(sendAnimation);
+                return null;
+            }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

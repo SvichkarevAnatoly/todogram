@@ -9,14 +9,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.db.MapDBContext;
-import org.telegram.abilitybots.api.objects.MessageContext;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.function.Function;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -45,6 +46,11 @@ class InnerAbilityBotTest {
     @Captor
     private ArgumentCaptor<SendAnimation> sendAnimationCaptor;
 
+    @Mock
+    private Update update;
+    @Mock
+    private Message message;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -72,11 +78,7 @@ class InnerAbilityBotTest {
 
     @Test
     public void canSayHelloWorld() {
-        Update update = new Update();
-
         User user = new User(USER_ID, "Abbas", false, "Abou Daya", "addo37", "en");
-        // This is the context that you're used to, it is the necessary conumer item for the ability
-        MessageContext context = MessageContext.newContext(update, user, CHAT_ID);
 
         final SendAnimation sendAnimation = new SendAnimation();
         sendAnimation.setChatId(CHAT_ID);
@@ -87,9 +89,12 @@ class InnerAbilityBotTest {
 
         bot.setProxy(proxy);
 
-        // We consume a context in the lambda declaration, so we pass the context to the action logic
-        bot.sayWelcome().action()
-                .accept(context);
+        when(update.getMessage()).thenReturn(message);
+        when(update.hasMessage()).thenReturn(true);
+        when(message.getFrom()).thenReturn(user);
+        when(message.getNewChatMembers()).thenReturn(singletonList(user));
+
+        bot.onUpdatesReceived(singletonList(update));
 
         verify(proxy).apply(sendAnimationCaptor.capture());
         final SendAnimation actualSendAnimation = sendAnimationCaptor.getValue();

@@ -2,6 +2,7 @@ package com.example.bot;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -15,12 +16,15 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.Random;
 import java.util.function.Function;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,15 +52,19 @@ class InnerAbilityBotTest {
 
     @Mock
     private Update update;
+
     @Mock
     private Message message;
+
+    private final User user = new User(USER_ID, "Abbas", false, "Abou Daya", "addo37", "en");
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         // Offline instance will get deleted at JVM shutdown
-        db = MapDBContext.offlineInstance("test");
+        // рандом, чтобы не было конфликта за файл db
+        db = MapDBContext.offlineInstance("test" + new Random().nextInt());
 
         // Create your bot
         bot = new InnerAbilityBot(null, null, db);
@@ -68,6 +76,8 @@ class InnerAbilityBotTest {
         // All method calls will go through the mocked interface -> which would do nothing except logging the fact that you've called this function with the specific arguments
         bot.setSender(sender);
         bot.setWelcomeBot(welcomeBot);
+        // Прокси для перехвата итогового сообщения - спасибо "отличному" api
+        bot.setProxy(proxy);
     }
 
     // We should clear the DB after every test as such
@@ -78,16 +88,12 @@ class InnerAbilityBotTest {
 
     @Test
     public void canSayHelloWorld() {
-        User user = new User(USER_ID, "Abbas", false, "Abou Daya", "addo37", "en");
-
         final SendAnimation sendAnimation = new SendAnimation();
         sendAnimation.setChatId(CHAT_ID);
         sendAnimation.setAnimation("animation");
 
         when(welcomeBot.onNewChatMembers(any()))
                 .thenReturn(sendAnimation);
-
-        bot.setProxy(proxy);
 
         when(update.getMessage()).thenReturn(message);
         when(update.hasMessage()).thenReturn(true);
@@ -100,5 +106,20 @@ class InnerAbilityBotTest {
         final SendAnimation actualSendAnimation = sendAnimationCaptor.getValue();
         assertEquals(actualSendAnimation.getChatId(), sendAnimation.getChatId());
         assertEquals(actualSendAnimation.getAnimation(), sendAnimation.getAnimation());
+    }
+
+    @Test
+    @DisplayName("Любое сообщение, где нет новых пользователей игнорируется")
+    void keepSilenceElse() {
+        when(update.getMessage()).thenReturn(message);
+        when(update.hasMessage()).thenReturn(true);
+        when(message.getFrom()).thenReturn(user);
+
+        // Новых пользователей нет
+        when(message.getNewChatMembers()).thenReturn(emptyList());
+
+        bot.onUpdatesReceived(singletonList(update));
+
+        verify(proxy, never()).apply(any());
     }
 }

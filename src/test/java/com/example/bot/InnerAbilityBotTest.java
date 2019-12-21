@@ -9,14 +9,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.telegram.abilitybots.api.db.DBContext;
-import org.telegram.abilitybots.api.db.MapDBContext;
 import org.telegram.abilitybots.api.sender.MessageSender;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.Random;
 import java.util.function.Function;
 
 import static java.util.Collections.emptyList;
@@ -42,6 +41,7 @@ class InnerAbilityBotTest {
     // Your sender here
     @Mock
     private MessageSender sender;
+    @Mock
     private DBContext db;
 
     @Mock
@@ -62,20 +62,13 @@ class InnerAbilityBotTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        // Offline instance will get deleted at JVM shutdown
-        // рандом, чтобы не было конфликта за файл db
-        db = MapDBContext.offlineInstance("test" + new Random().nextInt());
-
         // Create your bot
-        bot = new InnerAbilityBot(null, null, db);
-        // Create a new sender as a mock
-        sender = mock(MessageSender.class);
         welcomeBot = mock(WelcomeBot.class);
+        bot = new InnerAbilityBot(welcomeBot, null, null, db, new DefaultBotOptions());
         // Set your bot sender to the mocked sender
         // THIS is the line that prevents your bot from communicating with Telegram servers when it's running its own abilities
         // All method calls will go through the mocked interface -> which would do nothing except logging the fact that you've called this function with the specific arguments
         bot.setSender(sender);
-        bot.setWelcomeBot(welcomeBot);
         // Прокси для перехвата итогового сообщения - спасибо "отличному" api
         bot.setProxy(proxy);
     }

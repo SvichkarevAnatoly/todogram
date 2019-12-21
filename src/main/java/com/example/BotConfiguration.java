@@ -11,6 +11,8 @@ import org.aeonbits.owner.ConfigCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.abilitybots.api.bot.AbilityBot;
+import org.telegram.abilitybots.api.db.DBContext;
+import org.telegram.abilitybots.api.db.MapDBContext;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.ApiContext;
@@ -76,10 +78,18 @@ public class BotConfiguration {
     }
 
     @Bean
-    public InnerAbilityBot innerAbilityBot(SecurityConfig securityConfig, DefaultBotOptions botOptions) {
+    public DBContext dbContext(SecurityConfig securityConfig) {
+        return MapDBContext.onlineInstance(securityConfig.botName());
+    }
+
+    @Bean
+    public InnerAbilityBot innerAbilityBot(WelcomeBot welcomeBot, SecurityConfig securityConfig,
+                                           DBContext db, DefaultBotOptions botOptions) {
         return new InnerAbilityBot(
+                welcomeBot,
                 securityConfig.botToken(),
                 securityConfig.botName(),
+                db,
                 botOptions);
     }
 

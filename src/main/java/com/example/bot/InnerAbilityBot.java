@@ -1,6 +1,5 @@
 package com.example.bot;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.Ability;
@@ -26,25 +25,17 @@ public class InnerAbilityBot extends AbilityBot {
      */
     private Function<SendAnimation, SendAnimation> proxy;
 
-    public void setProxy(Function<SendAnimation, SendAnimation> proxy) {
-        this.proxy = proxy;
-    }
-
-    public InnerAbilityBot(String botToken, String botUsername, DefaultBotOptions botOptions) {
-        super(botToken, botUsername, botOptions);
-    }
-
-    // Для тестов
-    public InnerAbilityBot(String botToken, String botUsername, DBContext db) {
-        super(botToken, botUsername, db);
-    }
-
-    @Autowired
-    public void setWelcomeBot(WelcomeBot welcomeBot) {
+    public InnerAbilityBot(WelcomeBot welcomeBot,
+                           String botToken, String botUsername, DBContext db, DefaultBotOptions botOptions) {
+        super(botToken, botUsername, db, botOptions);
         this.welcomeBot = welcomeBot;
     }
 
     // Для тестов
+    public void setProxy(Function<SendAnimation, SendAnimation> proxy) {
+        this.proxy = proxy;
+    }
+
     void setSender(MessageSender sender) {
         this.sender = sender;
     }

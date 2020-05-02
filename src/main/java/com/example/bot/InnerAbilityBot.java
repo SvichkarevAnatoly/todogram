@@ -6,7 +6,9 @@ import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.function.Function;
@@ -49,12 +51,31 @@ public class InnerAbilityBot extends AbilityBot {
     public Ability sayWelcome() {
         return Ability.builder()
                 .name(DEFAULT)
-                .flag(update -> !update.getMessage().getNewChatMembers().isEmpty())
+                .flag(update -> true)
                 .input(0)
                 .locality(ALL)
                 .privacy(PUBLIC)
-                .action(ctx -> sendAnimation(welcomeBot.onNewChatMembers(ctx.update())))
+                .action(ctx -> makeResponse(ctx.update()))
                 .build();
+    }
+
+    private Message makeResponse(Update update) {
+        // We check if the update has a message and the message has text
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            // Set variables
+            String message_text = update.getMessage().getText();
+            long chat_id = update.getMessage().getChatId();
+
+            SendMessage message = new SendMessage()
+                    .setChatId(chat_id)
+                    .setText(message_text);
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     private Message sendAnimation(SendAnimation sendAnimation) {

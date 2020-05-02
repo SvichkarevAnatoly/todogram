@@ -1,5 +1,9 @@
 package com.example.bot;
 
+import de.aaschmid.taskwarrior.client.TaskwarriorClient;
+import de.aaschmid.taskwarrior.config.TaskwarriorPropertiesConfiguration;
+import de.aaschmid.taskwarrior.message.TaskwarriorMessage;
+import de.aaschmid.taskwarrior.message.TaskwarriorRequestHeader;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.Ability;
@@ -11,8 +15,12 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.net.URL;
 import java.util.function.Function;
 
+import static de.aaschmid.taskwarrior.config.TaskwarriorConfiguration.taskwarriorPropertiesConfiguration;
+import static de.aaschmid.taskwarrior.message.TaskwarriorMessage.taskwarriorMessage;
+import static de.aaschmid.taskwarrior.message.TaskwarriorRequestHeader.taskwarriorRequestHeaderBuilder;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
@@ -63,7 +71,7 @@ public class InnerAbilityBot extends AbilityBot {
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
             // Set variables
-            String message_text = update.getMessage().getText();
+            String message_text = getMessageFromTaskWarrior();
             long chat_id = update.getMessage().getChatId();
 
             SendMessage message = new SendMessage()
@@ -76,6 +84,20 @@ public class InnerAbilityBot extends AbilityBot {
             }
         }
         return null;
+    }
+
+    private String getMessageFromTaskWarrior() {
+        final URL resource = this.getClass().getResource("/taskwarrior.my.properties");
+        final TaskwarriorPropertiesConfiguration config = taskwarriorPropertiesConfiguration(resource);
+
+        TaskwarriorRequestHeader header = taskwarriorRequestHeaderBuilder()
+                .authentication(config)
+                .type(TaskwarriorRequestHeader.MessageType.SYNC)
+                .build();
+        TaskwarriorMessage message = taskwarriorMessage(header.toMap());
+
+        TaskwarriorMessage response = new TaskwarriorClient(config).sendAndReceive(message);
+        return response.getPayload().orElse("Пустой ответ");
     }
 
     private Message sendAnimation(SendAnimation sendAnimation) {

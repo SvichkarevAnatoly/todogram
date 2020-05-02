@@ -90,6 +90,13 @@
             <version>${telegrambots.version}</version>
         </dependency>
 
+        <!--Для парсинга emoji-->
+        <dependency>
+            <groupId>com.vdurmont</groupId>
+            <artifactId>emoji-java</artifactId>
+            <version>5.1.1</version>
+        </dependency>
+
         <!--Для работы с сервером taskwarrior-->
         <dependency>
             <groupId>de.aaschmid</groupId>

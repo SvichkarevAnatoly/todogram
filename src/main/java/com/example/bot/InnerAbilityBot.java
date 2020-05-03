@@ -1,5 +1,6 @@
 package com.example.bot;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vdurmont.emoji.EmojiParser;
 import de.aaschmid.taskwarrior.client.TaskwarriorClient;
@@ -29,7 +30,6 @@ import java.util.function.Function;
 import static de.aaschmid.taskwarrior.config.TaskwarriorConfiguration.taskwarriorPropertiesConfiguration;
 import static de.aaschmid.taskwarrior.message.TaskwarriorMessage.taskwarriorMessage;
 import static de.aaschmid.taskwarrior.message.TaskwarriorRequestHeader.taskwarriorRequestHeaderBuilder;
-import static java.nio.charset.StandardCharsets.UTF_16;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
@@ -50,6 +50,8 @@ public class InnerAbilityBot extends AbilityBot {
                            String botToken, String botUsername, DBContext db, DefaultBotOptions botOptions) {
         super(botToken, botUsername, db, botOptions);
         this.welcomeBot = welcomeBot;
+
+        getMessageFromTaskWarrior();
     }
 
     // Для тестов
@@ -78,41 +80,60 @@ public class InnerAbilityBot extends AbilityBot {
                 .build();
     }
 
+    static String ancestor = "";
+
     private Message makeResponse(Update update) {
-        // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
-            // Set variables
+            final String newTaskDescription = update.getMessage().getText();
+            saveNewTask(newTaskDescription);
+
             final List<Task> tasks = getMessageFromTaskWarrior();
-            for (int i = 0; i < tasks.size(); i++) {
-                String message_text = tasks.get(i).description;
-                long chat_id = update.getMessage().getChatId();
-
-                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(
-                        singletonList(asList(
-                                new InlineKeyboardButton()
-                                        .setText(EmojiParser.parseToUnicode(":white_check_mark:"))
-                                        .setCallbackData("done " + i),
-                                new InlineKeyboardButton()
-                                        .setText(EmojiParser.parseToUnicode(":pencil:"))
-                                        .setCallbackData("edit " + i),
-                                new InlineKeyboardButton()
-                                        .setText(EmojiParser.parseToUnicode(":x:"))
-                                        .setCallbackData("delete " + i)
-                        ))
-                );
-
-                SendMessage message = new SendMessage()
-                        .setChatId(chat_id)
-                        .setText(message_text)
-                        .setReplyMarkup(inlineKeyboardMarkup);
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-            }
+            sendEveryTask(update, tasks);
         }
         return null;
+    }
+
+    private void saveNewTask(String newTaskDescription) {
+        final URL resource = this.getClass().getResource("/taskwarrior.my.properties");
+        final TaskwarriorPropertiesConfiguration config = taskwarriorPropertiesConfiguration(resource);
+
+        TaskwarriorRequestHeader header = taskwarriorRequestHeaderBuilder()
+                .authentication(config)
+                .type(TaskwarriorRequestHeader.MessageType.SYNC)
+                .build();
+
+
+        final NewTask newTask = new NewTask(newTaskDescription);
+        String taskJson = ancestor + "\n";
+        try {
+            taskJson += new ObjectMapper().writeValueAsString(newTask);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        TaskwarriorMessage message = taskwarriorMessage(header.toMap(), taskJson);
+
+        TaskwarriorMessage response = new TaskwarriorClient(config).sendAndReceive(message);
+        ancestor = response.getPayload().get();
+    }
+
+    private void sendEveryTask(Update update, List<Task> tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            String message_text = tasks.get(i).description;
+            long chat_id = update.getMessage().getChatId();
+
+            InlineKeyboardMarkup inlineKeyboardMarkup = createInlineKeyboard(i);
+
+            SendMessage message = new SendMessage()
+                    .setChatId(chat_id)
+                    .setText(message_text)
+                    .setReplyMarkup(inlineKeyboardMarkup);
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private List<Task> getMessageFromTaskWarrior() {
@@ -129,7 +150,7 @@ public class InnerAbilityBot extends AbilityBot {
         final String tasksJson = getTasksInJson(response);
         List<Task> tasks = new ArrayList<>();
         try {
-            tasks = asList(new ObjectMapper().readValue(tasksJson.getBytes(UTF_16), Task[].class));
+            tasks = asList(new ObjectMapper().readValue(tasksJson, Task[].class));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -140,6 +161,10 @@ public class InnerAbilityBot extends AbilityBot {
     @NotNull
     private String getTasksInJson(TaskwarriorMessage response) {
         final String data = response.getPayload().orElse("");
+
+        final String[] split = data.split("\n");
+        ancestor = split[split.length - 1];
+
         final int lastNewLineIndex = data.lastIndexOf("\n");
         final String tasksSemiJson = new StringBuilder(data).delete(lastNewLineIndex, data.length()).toString();
 
@@ -158,5 +183,22 @@ public class InnerAbilityBot extends AbilityBot {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @NotNull
+    private InlineKeyboardMarkup createInlineKeyboard(int i) {
+        return new InlineKeyboardMarkup(
+                singletonList(asList(
+                        new InlineKeyboardButton()
+                                .setText(EmojiParser.parseToUnicode(":white_check_mark:"))
+                                .setCallbackData("done " + i),
+                        new InlineKeyboardButton()
+                                .setText(EmojiParser.parseToUnicode(":pencil:"))
+                                .setCallbackData("edit " + i),
+                        new InlineKeyboardButton()
+                                .setText(EmojiParser.parseToUnicode(":x:"))
+                                .setCallbackData("delete " + i)
+                ))
+        );
     }
 }

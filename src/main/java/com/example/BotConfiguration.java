@@ -7,6 +7,9 @@ import com.example.bot.RequestService;
 import com.example.bot.WelcomeBot;
 import com.example.config.BotConfig;
 import com.example.config.SecurityConfig;
+import com.example.task.TaskService;
+import com.example.task.TaskStorage;
+import com.example.task.warrior.TaskWarriorService;
 import org.aeonbits.owner.ConfigCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -78,15 +81,22 @@ public class BotConfiguration {
     }
 
     @Bean
+    public TaskService taskService() {
+        return new TaskService(new TaskWarriorService(), new TaskStorage());
+    }
+
+    @Bean
     public DBContext dbContext(SecurityConfig securityConfig) {
         return MapDBContext.onlineInstance(securityConfig.botName());
     }
 
     @Bean
-    public InnerAbilityBot innerAbilityBot(WelcomeBot welcomeBot, SecurityConfig securityConfig,
+    public InnerAbilityBot innerAbilityBot(WelcomeBot welcomeBot, TaskService taskService,
+                                           SecurityConfig securityConfig,
                                            DBContext db, DefaultBotOptions botOptions) {
         return new InnerAbilityBot(
                 welcomeBot,
+                taskService,
                 securityConfig.botToken(),
                 securityConfig.botName(),
                 db,

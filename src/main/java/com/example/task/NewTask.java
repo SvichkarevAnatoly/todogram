@@ -1,5 +1,6 @@
-package com.example.bot;
+package com.example.task;
 
+// TODO: Удалить
 public class NewTask {
     public String description;
 

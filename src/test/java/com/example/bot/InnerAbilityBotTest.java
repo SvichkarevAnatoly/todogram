@@ -64,7 +64,7 @@ class InnerAbilityBotTest {
 
         // Create your bot
         welcomeBot = mock(WelcomeBot.class);
-        bot = new InnerAbilityBot(welcomeBot, null, null, db, new DefaultBotOptions());
+        bot = new InnerAbilityBot(welcomeBot, null, null, null, db, new DefaultBotOptions());
         // Set your bot sender to the mocked sender
         // THIS is the line that prevents your bot from communicating with Telegram servers when it's running its own abilities
         // All method calls will go through the mocked interface -> which would do nothing except logging the fact that you've called this function with the specific arguments

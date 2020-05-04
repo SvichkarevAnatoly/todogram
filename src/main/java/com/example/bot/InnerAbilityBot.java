@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -74,10 +75,19 @@ public class InnerAbilityBot extends AbilityBot {
 
     private void router(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            if ("list".equals(update.getMessage().getText())) {
-                listPendingTasks(update);
-            } else {
-                createTask(update);
+            final String text = update.getMessage().getText();
+            switch (text) {
+                case "list":
+                    listPendingTasks(update);
+                    break;
+                case "completed":
+                    listCompletedTasks(update);
+                    break;
+                case "deleted":
+                    listDeletedTasks(update);
+                    break;
+                default:
+                    createTask(update);
             }
         } else {
             if (update.hasCallbackQuery()) {
@@ -86,24 +96,42 @@ public class InnerAbilityBot extends AbilityBot {
         }
     }
 
-    private Message listPendingTasks(Update update) {
+    private void listPendingTasks(Update update) {
         sendEveryTask(update, taskService.getPendingTasks());
-        return null;
     }
 
-    private Message createTask(Update update) {
+    private void listCompletedTasks(Update update) {
+        final List<Task> completedTasks = taskService.getCompletedTasks();
+        final String text = completedTasks.stream()
+                .map(task -> task.description)
+                .collect(Collectors.joining("\n\n"));
+        sendText(text, update);
+    }
+
+    private void listDeletedTasks(Update update) {
+        final List<Task> deletedTasks = taskService.getDeletedTasks();
+        final String text = deletedTasks.stream()
+                .map(task -> task.description)
+                .collect(Collectors.joining("\n\n"));
+        sendText(text, update);
+    }
+
+    private void createTask(Update update) {
         final Task newTask = new Task(update.getMessage().getText());
         taskService.createTask(newTask);
 
+        sendText("Задача создана", update);
+    }
+
+    private void sendText(String text, Update update) {
         SendMessage message = new SendMessage()
                 .setChatId(update.getMessage().getChatId())
-                .setText("Задача создана");
+                .setText(text);
         try {
             execute(message);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     private void parseCallbackQuery(Update update) {
@@ -112,6 +140,10 @@ public class InnerAbilityBot extends AbilityBot {
             final String taskUuid = data.substring("done ".length());
             final Task taskForDone = taskService.getTaskByUuid(taskUuid);
             taskService.setStatusCompleted(taskForDone);
+        } else if (data.startsWith("delete ")) {
+            final String taskUuid = data.substring("delete ".length());
+            final Task taskForDelete = taskService.getTaskByUuid(taskUuid);
+            taskService.setStatusDeleted(taskForDelete);
         }
     }
 

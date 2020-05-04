@@ -28,6 +28,14 @@ public class TaskService {
         return taskStorage.getPendingTasks();
     }
 
+    public List<Task> getCompletedTasks() {
+        return taskStorage.getCompletedTasks();
+    }
+
+    public List<Task> getDeletedTasks() {
+        return taskStorage.getDeletedTasks();
+    }
+
     public Task getTaskByUuid(String uuid) {
         return taskStorage.getTaskByUuid(uuid);
     }
@@ -40,6 +48,14 @@ public class TaskService {
     public void setStatusCompleted(Task taskForDone) {
         final Task originalTask = getTaskByUuid(taskForDone.uuid);
         originalTask.status = "completed";
+
+        taskWarriorService.pushTask(originalTask);
+        updateStorage();
+    }
+
+    public void setStatusDeleted(Task taskForDelete) {
+        final Task originalTask = getTaskByUuid(taskForDelete.uuid);
+        originalTask.status = "deleted";
 
         taskWarriorService.pushTask(originalTask);
         updateStorage();

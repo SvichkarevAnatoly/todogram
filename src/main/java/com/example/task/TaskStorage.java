@@ -53,5 +53,20 @@ public class TaskStorage {
         return tasks.get(uuid);
     }
 
-    // TODO: получить список сделанных задач
+    /**
+     * Получить список сделанных задач
+     *
+     * @return
+     */
+    public List<Task> getCompletedTasks() {
+        return tasks.values().stream()
+                .filter(task -> "completed".equals(task.status))
+                .collect(toList());
+    }
+
+    public List<Task> getDeletedTasks() {
+        return tasks.values().stream()
+                .filter(task -> "deleted".equals(task.status))
+                .collect(toList());
+    }
 }

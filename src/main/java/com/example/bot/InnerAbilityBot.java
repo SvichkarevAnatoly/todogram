@@ -14,12 +14,15 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -60,12 +63,19 @@ public class InnerAbilityBot extends AbilityBot {
         return 0;
     }
 
-    // TODO: разобраться с множеством разных ability
-    @SuppressWarnings("unchecked")
-    public Ability ability() {
+    public Ability start() {
+        return Ability.builder()
+                .name("start")
+                .input(0)
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> showKeyboard(ctx.update()))
+                .build();
+    }
+
+    public Ability common() {
         return Ability.builder()
                 .name(DEFAULT)
-                .flag(update -> true)
                 .input(0)
                 .locality(ALL)
                 .privacy(PUBLIC)
@@ -77,13 +87,13 @@ public class InnerAbilityBot extends AbilityBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             final String text = update.getMessage().getText();
             switch (text) {
-                case "list":
+                case "Текущие":
                     listPendingTasks(update);
                     break;
-                case "completed":
+                case "Завершенные":
                     listCompletedTasks(update);
                     break;
-                case "deleted":
+                case "Удалённые":
                     listDeletedTasks(update);
                     break;
                 default:
@@ -96,23 +106,36 @@ public class InnerAbilityBot extends AbilityBot {
         }
     }
 
+    private void showKeyboard(Update update) {
+        final ReplyKeyboardMarkup keyboard = createKeyboard();
+        SendMessage message = new SendMessage()
+                .setChatId(update.getMessage().getChatId())
+                // TODO: Понять можно ли показать клавиатуру без текстовки
+                .setText("Добро пожаловать!")
+                .setReplyMarkup(keyboard);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void listPendingTasks(Update update) {
         sendEveryTask(update, taskService.getPendingTasks());
     }
 
     private void listCompletedTasks(Update update) {
-        final List<Task> completedTasks = taskService.getCompletedTasks();
-        final String text = completedTasks.stream()
-                .map(task -> task.description)
-                .collect(Collectors.joining("\n\n"));
-        sendText(text, update);
+        generateTasksList(update, taskService.getCompletedTasks());
     }
 
     private void listDeletedTasks(Update update) {
-        final List<Task> deletedTasks = taskService.getDeletedTasks();
-        final String text = deletedTasks.stream()
-                .map(task -> task.description)
-                .collect(Collectors.joining("\n\n"));
+        generateTasksList(update, taskService.getDeletedTasks());
+    }
+
+    private void generateTasksList(Update update, List<Task> tasks) {
+        final String text = IntStream.range(0, tasks.size())
+                .mapToObj(i -> (i + 1) + ") " + tasks.get(i).description)
+                .collect(Collectors.joining("\n"));
         sendText(text, update);
     }
 
@@ -132,6 +155,15 @@ public class InnerAbilityBot extends AbilityBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+
+    private ReplyKeyboardMarkup createKeyboard() {
+        final KeyboardRow row1 = new KeyboardRow();
+        final KeyboardRow row2 = new KeyboardRow();
+        row1.add("Текущие");
+        row2.add("Завершенные");
+        row2.add("Удалённые");
+        return new ReplyKeyboardMarkup(asList(row1, row2));
     }
 
     private void parseCallbackQuery(Update update) {

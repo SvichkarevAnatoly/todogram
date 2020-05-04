@@ -12,6 +12,7 @@ public class Task {
     public String status;
     public String uuid;
     public String end;
+    public Annotation[] annotations;
 
     public Task() {
     }
@@ -20,5 +21,10 @@ public class Task {
         this.description = description;
         this.status = "pending";
         this.uuid = UUID.randomUUID().toString();
+    }
+
+    public static class Annotation {
+        public String entry;
+        public String description;
     }
 }

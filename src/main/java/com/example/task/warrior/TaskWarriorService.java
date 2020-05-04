@@ -28,7 +28,7 @@ public class TaskWarriorService {
         return parseJsonLines(extractTasksJsonLines(payload));
     }
 
-    public void pushNewTask(Task task) {
+    public void pushTask(Task task) {
         final String taskJson = TaskParser.toJson(task);
         final TaskwarriorMessage response = getSyncWithPayloadResponse(taskJson);
         syncKey = response.getPayload().get();

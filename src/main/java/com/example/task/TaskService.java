@@ -20,19 +20,34 @@ public class TaskService {
         updateStorage();
     }
 
-    public List<Task> getTasks() {
-        if (taskStorage.isEmpty()) {
-            updateStorage();
-        }
-        return taskStorage.getTasks();
+    public List<Task> getAllTasks() {
+        return taskStorage.getAllTasks();
+    }
+
+    public List<Task> getPendingTasks() {
+        return taskStorage.getPendingTasks();
+    }
+
+    public Task getTaskByUuid(String uuid) {
+        return taskStorage.getTaskByUuid(uuid);
     }
 
     public void createTask(Task task) {
-        taskWarriorService.pushNewTask(task);
+        taskWarriorService.pushTask(task);
         updateStorage();
     }
 
+    public void setStatusCompleted(Task taskForDone) {
+        final Task originalTask = getTaskByUuid(taskForDone.uuid);
+        originalTask.status = "completed";
+
+        taskWarriorService.pushTask(originalTask);
+        updateStorage();
+    }
+
+    // TODO: Реализовать настоящий update с добавлением только инкремента
     private void updateStorage() {
-        taskStorage.load(taskWarriorService.fetchAllTasks());
+        final List<Task> tasks = taskWarriorService.fetchAllTasks();
+        taskStorage.load(tasks);
     }
 }

@@ -1,25 +1,57 @@
 package com.example.task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 public class TaskStorage {
 
-    private List<Task> tasks = new ArrayList<>();
+    private Map<String, Task> tasks = new HashMap<>();
 
     public void load(List<Task> tasks) {
-        this.tasks = tasks;
+        for (Task task : tasks) {
+            if (task.uuid == null) {
+                // TODO: решить что с такими задачами делать
+                continue;
+            }
+            this.tasks.put(task.uuid, task);
+        }
     }
 
-    public List<Task> getTasks() {
-        return tasks;
+    /**
+     * Обновить задачу, если уже существовала - тогда true
+     *
+     * @param task
+     * @return
+     */
+    public boolean update(Task task) {
+        return tasks.replace(task.uuid, task) != null;
     }
 
-    public boolean isEmpty() {
-        return tasks.isEmpty();
+    public List<Task> getAllTasks() {
+        return new ArrayList<>(tasks.values());
     }
 
-    // TODO: получить задачу по uuid
-    // TODO: получить список рабочих задач
+    /**
+     * Получить список рабочих задач
+     *
+     * @return
+     */
+    public List<Task> getPendingTasks() {
+        return tasks.values().stream()
+                .filter(task -> "pending".equals(task.status))
+                .collect(toList());
+    }
+
+    /**
+     * Получить задачу по uuid
+     */
+    public Task getTaskByUuid(String uuid) {
+        return tasks.get(uuid);
+    }
+
     // TODO: получить список сделанных задач
 }

@@ -59,32 +59,68 @@ public class InnerAbilityBot extends AbilityBot {
         return 0;
     }
 
+    // TODO: разобраться с множеством разных ability
     @SuppressWarnings("unchecked")
-    public Ability sayWelcome() {
+    public Ability ability() {
         return Ability.builder()
                 .name(DEFAULT)
-                .flag(update -> update.hasMessage() && update.getMessage().hasText())
+                .flag(update -> true)
                 .input(0)
                 .locality(ALL)
                 .privacy(PUBLIC)
-                .action(ctx -> makeResponse(ctx.update()))
+                .action(ctx -> router(ctx.update()))
                 .build();
     }
 
-    private Message makeResponse(Update update) {
-        final Task newTask = new Task(update.getMessage().getText());
-        taskService.createTask(newTask);
+    private void router(Update update) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            if ("list".equals(update.getMessage().getText())) {
+                listPendingTasks(update);
+            } else {
+                createTask(update);
+            }
+        } else {
+            if (update.hasCallbackQuery()) {
+                parseCallbackQuery(update);
+            }
+        }
+    }
 
-        sendEveryTask(update, taskService.getTasks());
+    private Message listPendingTasks(Update update) {
+        sendEveryTask(update, taskService.getPendingTasks());
         return null;
     }
 
+    private Message createTask(Update update) {
+        final Task newTask = new Task(update.getMessage().getText());
+        taskService.createTask(newTask);
+
+        SendMessage message = new SendMessage()
+                .setChatId(update.getMessage().getChatId())
+                .setText("Задача создана");
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void parseCallbackQuery(Update update) {
+        final String data = update.getCallbackQuery().getData();
+        if (data.startsWith("done ")) {
+            final String taskUuid = data.substring("done ".length());
+            final Task taskForDone = taskService.getTaskByUuid(taskUuid);
+            taskService.setStatusCompleted(taskForDone);
+        }
+    }
+
     private void sendEveryTask(Update update, List<Task> tasks) {
-        for (int i = 0; i < tasks.size(); i++) {
-            String message_text = tasks.get(i).description;
+        for (Task task : tasks) {
+            String message_text = task.description;
             long chat_id = update.getMessage().getChatId();
 
-            InlineKeyboardMarkup inlineKeyboardMarkup = createInlineKeyboard(i);
+            InlineKeyboardMarkup inlineKeyboardMarkup = createInlineKeyboard(task.uuid);
 
             SendMessage message = new SendMessage()
                     .setChatId(chat_id)
@@ -99,18 +135,18 @@ public class InnerAbilityBot extends AbilityBot {
     }
 
     @NotNull
-    private InlineKeyboardMarkup createInlineKeyboard(int i) {
+    private InlineKeyboardMarkup createInlineKeyboard(String uuid) {
         return new InlineKeyboardMarkup(
                 singletonList(asList(
                         new InlineKeyboardButton()
                                 .setText(EmojiParser.parseToUnicode(":white_check_mark:"))
-                                .setCallbackData("done " + i),
+                                .setCallbackData("done " + uuid),
                         new InlineKeyboardButton()
                                 .setText(EmojiParser.parseToUnicode(":pencil:"))
-                                .setCallbackData("edit " + i),
+                                .setCallbackData("edit " + uuid),
                         new InlineKeyboardButton()
                                 .setText(EmojiParser.parseToUnicode(":x:"))
-                                .setCallbackData("delete " + i)
+                                .setCallbackData("delete " + uuid)
                 ))
         );
     }

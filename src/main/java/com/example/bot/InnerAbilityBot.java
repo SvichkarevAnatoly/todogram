@@ -70,6 +70,7 @@ public class InnerAbilityBot extends AbilityBot {
                 .locality(ALL)
                 .privacy(PUBLIC)
                 .action(ctx -> showKeyboard(ctx.update()))
+                .post(ctx -> listPendingTasks(ctx.update()))
                 .build();
     }
 
@@ -98,6 +99,8 @@ public class InnerAbilityBot extends AbilityBot {
                     break;
                 default:
                     createTask(update);
+                    listPendingTasks(update);
+                    break;
             }
         } else {
             if (update.hasCallbackQuery()) {

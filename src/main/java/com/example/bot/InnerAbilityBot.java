@@ -3,7 +3,6 @@ package com.example.bot;
 import com.example.task.Task;
 import com.example.task.TaskService;
 import com.vdurmont.emoji.EmojiParser;
-import org.jetbrains.annotations.NotNull;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.objects.Ability;
@@ -11,6 +10,7 @@ import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -177,28 +177,41 @@ public class InnerAbilityBot extends AbilityBot {
             final Task taskForDelete = taskService.getTaskByUuid(taskUuid);
             taskService.setStatusDeleted(taskForDelete);
         }
+        // Удалим это сообщение
+        deleteMessage(update);
+    }
+
+    private void deleteMessage(Update update) {
+        final Message message = update.getCallbackQuery().getMessage();
+        final DeleteMessage deleteMessage = new DeleteMessage(
+                message.getChatId(), message.getMessageId()
+        );
+        try {
+            execute(deleteMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendEveryTask(Update update, List<Task> tasks) {
         for (Task task : tasks) {
-            String message_text = task.description;
-            long chat_id = update.getMessage().getChatId();
+            String messageText = task.description;
+            long chatId = update.getMessage().getChatId();
 
             InlineKeyboardMarkup inlineKeyboardMarkup = createInlineKeyboard(task.uuid);
 
-            SendMessage message = new SendMessage()
-                    .setChatId(chat_id)
-                    .setText(message_text)
+            SendMessage sendMessage = new SendMessage()
+                    .setChatId(chatId)
+                    .setText(messageText)
                     .setReplyMarkup(inlineKeyboardMarkup);
             try {
-                execute(message);
+                execute(sendMessage);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    @NotNull
     private InlineKeyboardMarkup createInlineKeyboard(String uuid) {
         return new InlineKeyboardMarkup(
                 singletonList(asList(

@@ -1,10 +1,12 @@
 package com.example.task;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.task.Task.DATE_TIME_FORMATTER;
 import static java.util.stream.Collectors.toList;
 
 public class TaskStorage {
@@ -50,6 +52,9 @@ public class TaskStorage {
         return tasks.values().stream()
                 .filter(task -> "pending".equals(task.status)
                         && priority.equals(task.priority))
+                .sorted((task1, task2) ->
+                        LocalDateTime.parse(task2.modified, DATE_TIME_FORMATTER)
+                                .compareTo(LocalDateTime.parse(task1.modified, DATE_TIME_FORMATTER)))
                 .collect(toList());
     }
 
@@ -68,12 +73,22 @@ public class TaskStorage {
     public List<Task> getCompletedTasks() {
         return tasks.values().stream()
                 .filter(task -> "completed".equals(task.status))
+                // Чтобы не падали на некорректных данных
+                .filter(task -> task.end != null)
+                .sorted((task1, task2) ->
+                        LocalDateTime.parse(task2.end, DATE_TIME_FORMATTER)
+                                .compareTo(LocalDateTime.parse(task1.end, DATE_TIME_FORMATTER)))
                 .collect(toList());
     }
 
     public List<Task> getDeletedTasks() {
         return tasks.values().stream()
                 .filter(task -> "deleted".equals(task.status))
+                // Чтобы не падали на некорректных данных
+                .filter(task -> task.end != null)
+                .sorted((task1, task2) ->
+                        LocalDateTime.parse(task2.end, DATE_TIME_FORMATTER)
+                                .compareTo(LocalDateTime.parse(task1.end, DATE_TIME_FORMATTER)))
                 .collect(toList());
     }
 }

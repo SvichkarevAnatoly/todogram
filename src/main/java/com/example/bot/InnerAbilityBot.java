@@ -126,6 +126,26 @@ public class InnerAbilityBot extends AbilityBot {
     }
 
     private void listPendingTasks(Update update) {
+        final List<Task> tasks = taskService.getPendingTasks();
+        final String text = IntStream.range(0, tasks.size())
+                .mapToObj(i -> (i + 1) + ") " + tasks.get(i).description)
+                .collect(Collectors.joining("\n"));
+
+        SendMessage message = new SendMessage()
+                .setChatId(update.getMessage().getChatId())
+                .setText(text)
+                .setReplyMarkup(new InlineKeyboardMarkup(singletonList(singletonList(
+                        new InlineKeyboardButton("Подробнее")
+                                .setCallbackData("Подробнее")
+                ))));
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void listIndividualPendingTasks(Update update) {
         sendEveryTask(update, taskService.getPendingTasks());
     }
 
@@ -175,17 +195,19 @@ public class InnerAbilityBot extends AbilityBot {
 
     private void parseCallbackQuery(Update update) {
         final String data = update.getCallbackQuery().getData();
-        if (data.startsWith("done ")) {
+        if (data.equals("Подробнее")) {
+            listIndividualPendingTasks(update);
+        } else if (data.startsWith("done ")) {
             final String taskUuid = data.substring("done ".length());
             final Task taskForDone = taskService.getTaskByUuid(taskUuid);
             taskService.setStatusCompleted(taskForDone);
+            deleteMessage(update);
         } else if (data.startsWith("delete ")) {
             final String taskUuid = data.substring("delete ".length());
             final Task taskForDelete = taskService.getTaskByUuid(taskUuid);
             taskService.setStatusDeleted(taskForDelete);
+            deleteMessage(update);
         }
-        // Удалим это сообщение
-        deleteMessage(update);
     }
 
     private void deleteMessage(Update update) {
@@ -203,7 +225,7 @@ public class InnerAbilityBot extends AbilityBot {
     private void sendEveryTask(Update update, List<Task> tasks) {
         for (Task task : tasks) {
             String messageText = task.description;
-            long chatId = update.getMessage().getChatId();
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
 
             InlineKeyboardMarkup inlineKeyboardMarkup = createInlineKeyboard(task.uuid);
 

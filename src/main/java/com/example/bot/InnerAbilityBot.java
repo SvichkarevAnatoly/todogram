@@ -88,7 +88,9 @@ public class InnerAbilityBot extends AbilityBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             final String text = update.getMessage().getText();
             switch (text) {
-                case "Текущие":
+                case "Сегодня":
+                case "Неделя":
+                case "Потом":
                     listPendingTasks(update);
                     break;
                 case "Завершенные":
@@ -163,7 +165,9 @@ public class InnerAbilityBot extends AbilityBot {
     private ReplyKeyboardMarkup createKeyboard() {
         final KeyboardRow row1 = new KeyboardRow();
         final KeyboardRow row2 = new KeyboardRow();
-        row1.add("Текущие");
+        row1.add("Сегодня");
+        row1.add("Неделя");
+        row1.add("Потом");
         row2.add("Завершенные");
         row2.add("Удалённые");
         return new ReplyKeyboardMarkup(asList(row1, row2));

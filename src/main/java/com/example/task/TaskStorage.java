@@ -9,7 +9,7 @@ import static java.util.stream.Collectors.toList;
 
 public class TaskStorage {
 
-    private Map<String, Task> tasks = new HashMap<>();
+    private final Map<String, Task> tasks = new HashMap<>();
 
     public void load(List<Task> tasks) {
         for (Task task : tasks) {

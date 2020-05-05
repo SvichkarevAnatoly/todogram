@@ -3,7 +3,11 @@ package com.example.task;
 import com.example.task.warrior.TaskWarriorService;
 
 import javax.annotation.PostConstruct;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
+
+import static com.example.task.Task.DATE_TIME_FORMATTER;
 
 public class TaskService {
 
@@ -48,6 +52,9 @@ public class TaskService {
     public void setStatusCompleted(Task taskForDone) {
         final Task originalTask = getTaskByUuid(taskForDone.uuid);
         originalTask.status = "completed";
+        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        originalTask.end = now.format(DATE_TIME_FORMATTER);
+        originalTask.modified = now.format(DATE_TIME_FORMATTER);
 
         taskWarriorService.pushTask(originalTask);
         updateStorage();
@@ -56,6 +63,9 @@ public class TaskService {
     public void setStatusDeleted(Task taskForDelete) {
         final Task originalTask = getTaskByUuid(taskForDelete.uuid);
         originalTask.status = "deleted";
+        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        originalTask.end = now.format(DATE_TIME_FORMATTER);
+        originalTask.modified = now.format(DATE_TIME_FORMATTER);
 
         taskWarriorService.pushTask(originalTask);
         updateStorage();

@@ -211,10 +211,13 @@ public class InnerAbilityBot extends AbilityBot {
         final String data = update.getCallbackQuery().getData();
         if (data.equals("Подробнее H")) {
             listIndividualPendingTasks(update, "H");
+            deleteMessage(update);
         } else if (data.equals("Подробнее M")) {
             listIndividualPendingTasks(update, "M");
+            deleteMessage(update);
         } else if (data.equals("Подробнее L")) {
             listIndividualPendingTasks(update, "L");
+            deleteMessage(update);
         } else if (data.startsWith("done ")) {
             final String taskUuid = data.substring("done ".length());
             final Task taskForDone = taskService.getTaskByUuid(taskUuid);

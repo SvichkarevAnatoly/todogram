@@ -32,6 +32,10 @@ public class TaskService {
         return taskStorage.getPendingTasks();
     }
 
+    public List<Task> getPriorityPendingTasks(String priority) {
+        return taskStorage.getPriorityPendingTasks(priority);
+    }
+
     public List<Task> getCompletedTasks() {
         return taskStorage.getCompletedTasks();
     }
@@ -65,6 +69,16 @@ public class TaskService {
         originalTask.status = "deleted";
         final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         originalTask.end = now.format(DATE_TIME_FORMATTER);
+        originalTask.modified = now.format(DATE_TIME_FORMATTER);
+
+        taskWarriorService.pushTask(originalTask);
+        updateStorage();
+    }
+
+    public void changePriority(Task task, String priority) {
+        final Task originalTask = getTaskByUuid(task.uuid);
+        originalTask.priority = priority;
+        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         originalTask.modified = now.format(DATE_TIME_FORMATTER);
 
         taskWarriorService.pushTask(originalTask);

@@ -46,6 +46,13 @@ public class TaskStorage {
                 .collect(toList());
     }
 
+    public List<Task> getPriorityPendingTasks(String priority) {
+        return tasks.values().stream()
+                .filter(task -> "pending".equals(task.status)
+                        && priority.equals(task.priority))
+                .collect(toList());
+    }
+
     /**
      * Получить задачу по uuid
      */

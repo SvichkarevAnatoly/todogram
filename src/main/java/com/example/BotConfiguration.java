@@ -1,10 +1,6 @@
 package com.example;
 
-import com.example.bot.CaptionService;
-import com.example.bot.GifService;
 import com.example.bot.InnerAbilityBot;
-import com.example.bot.RequestService;
-import com.example.bot.WelcomeBot;
 import com.example.config.BotConfig;
 import com.example.config.SecurityConfig;
 import com.example.task.TaskService;
@@ -28,21 +24,6 @@ import java.net.PasswordAuthentication;
 // TODO: попробовать контекст создать на autowired, предварительно попробовав с тестами
 @Configuration
 public class BotConfiguration {
-
-    @Bean
-    public RequestService requestService() {
-        return new RequestService();
-    }
-
-    @Bean
-    public GifService gifService(SecurityConfig securityConfig, BotConfig botConfig, RequestService requestService) {
-        return new GifService(securityConfig, botConfig, requestService);
-    }
-
-    @Bean
-    public CaptionService captionService(BotConfig botConfig, RequestService requestService) {
-        return new CaptionService(botConfig, requestService);
-    }
 
     @Bean
     public SecurityConfig securityConfig() {
@@ -76,11 +57,6 @@ public class BotConfiguration {
     }
 
     @Bean
-    public WelcomeBot welcomeBot(GifService gifService, CaptionService captionService) {
-        return new WelcomeBot(gifService, captionService);
-    }
-
-    @Bean
     public TaskService taskService() {
         return new TaskService(new TaskWarriorService(), new TaskStorage());
     }
@@ -91,11 +67,10 @@ public class BotConfiguration {
     }
 
     @Bean
-    public InnerAbilityBot innerAbilityBot(WelcomeBot welcomeBot, TaskService taskService,
+    public InnerAbilityBot innerAbilityBot(TaskService taskService,
                                            SecurityConfig securityConfig,
                                            DBContext db, DefaultBotOptions botOptions) {
         return new InnerAbilityBot(
-                welcomeBot,
                 taskService,
                 securityConfig.botToken(),
                 securityConfig.botName(),

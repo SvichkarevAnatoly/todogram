@@ -23,7 +23,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,9 +36,6 @@ class InnerAbilityBotTest {
 
     // Your bot handle here
     private InnerAbilityBot bot;
-
-    @Mock
-    private WelcomeBot welcomeBot;
 
     // Your sender here
     @Mock
@@ -66,8 +62,7 @@ class InnerAbilityBotTest {
         MockitoAnnotations.initMocks(this);
 
         // Create your bot
-        welcomeBot = mock(WelcomeBot.class);
-        bot = new InnerAbilityBot(welcomeBot, null, null, null, db, new DefaultBotOptions());
+        bot = new InnerAbilityBot(null, null, null, db, new DefaultBotOptions());
         // Set your bot sender to the mocked sender
         // THIS is the line that prevents your bot from communicating with Telegram servers when it's running its own abilities
         // All method calls will go through the mocked interface -> which would do nothing except logging the fact that you've called this function with the specific arguments
@@ -87,9 +82,6 @@ class InnerAbilityBotTest {
         final SendAnimation sendAnimation = new SendAnimation();
         sendAnimation.setChatId(CHAT_ID);
         sendAnimation.setAnimation("animation");
-
-        when(welcomeBot.onNewChatMembers(any()))
-                .thenReturn(sendAnimation);
 
         when(update.getMessage()).thenReturn(message);
         when(update.hasMessage()).thenReturn(true);

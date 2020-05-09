@@ -35,7 +35,6 @@ import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
  */
 public class InnerAbilityBot extends AbilityBot {
 
-    private WelcomeBot welcomeBot;
     private TaskService taskService;
 
     /**
@@ -43,10 +42,9 @@ public class InnerAbilityBot extends AbilityBot {
      */
     private Function<SendAnimation, SendAnimation> proxy;
 
-    public InnerAbilityBot(WelcomeBot welcomeBot, TaskService
-            taskService, String botToken, String botUsername, DBContext db, DefaultBotOptions botOptions) {
+    public InnerAbilityBot(TaskService taskService,
+                           String botToken, String botUsername, DBContext db, DefaultBotOptions botOptions) {
         super(botToken, botUsername, db, botOptions);
-        this.welcomeBot = welcomeBot;
         this.taskService = taskService;
     }
 

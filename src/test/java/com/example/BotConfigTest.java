@@ -21,24 +21,4 @@ class BotConfigTest {
         assertThat(config.proxyPort())
                 .isGreaterThan(0);
     }
-
-    @Test
-    void gitInitOffset() {
-        assertThat(config.gifOffset())
-                .isGreaterThanOrEqualTo(0)
-                .isLessThan(100);
-        // TODO: тест на рандом
-    }
-
-    @Test
-    void gifQuery() {
-        assertThat(config.gifQuery())
-                .isNotBlank();
-    }
-
-    @Test
-    void gifRequestUrlTemplate() {
-        assertThat(config.gifRequestUrlTemplate())
-                .isNotBlank();
-    }
 }

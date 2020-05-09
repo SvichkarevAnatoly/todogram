@@ -42,13 +42,6 @@ class SecurityConfigTest {
     }
 
     @Test
-    void giphyApiKey() {
-        assertThat(config.giphyApiKey())
-                .isNotBlank()
-                .isNotEqualTo("<your value>");
-    }
-
-    @Test
     void proxyUser() {
         assertThat(config.proxyUser())
                 .isNotBlank()

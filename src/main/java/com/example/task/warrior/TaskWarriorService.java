@@ -144,21 +144,20 @@ public class TaskWarriorService {
         return new MyTaskWarriorSslKeys() {
             @Override
             public String getCaCert() {
-                final String base64Value = System.getenv("TASKWARRIOR_SSL_CERT_CA");
-                byte[] decodedBytes = Base64.getDecoder().decode(base64Value);
-                return new String(decodedBytes);
+                return fromBase64(System.getenv("TASKWARRIOR_SSL_CERT_CA"));
             }
 
             @Override
             public String getPrivateKeyCert() {
-                final String base64Value = System.getenv("TASKWARRIOR_SSL_CERT_KEY");
-                byte[] decodedBytes = Base64.getDecoder().decode(base64Value);
-                return new String(decodedBytes);
+                return fromBase64(System.getenv("TASKWARRIOR_SSL_CERT_KEY"));
             }
 
             @Override
             public String getPrivateKey() {
-                final String base64Value = System.getenv("TASKWARRIOR_SSL_PRIVATE_KEY");
+                return fromBase64(System.getenv("TASKWARRIOR_SSL_PRIVATE_KEY"));
+            }
+
+            private String fromBase64(String base64Value) {
                 byte[] decodedBytes = Base64.getDecoder().decode(base64Value);
                 return new String(decodedBytes);
             }

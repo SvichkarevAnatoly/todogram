@@ -8,7 +8,7 @@ public interface TaskService {
 
     List<Task> getPendingTasks();
 
-    List<Task> getPriorityPendingTasks(Priority priority);
+    List<Task> getPriorityPendingTasks(TaskPriority priority);
 
     List<Task> getCompletedTasks();
 

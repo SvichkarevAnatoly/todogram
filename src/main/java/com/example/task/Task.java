@@ -21,7 +21,7 @@ public class Task {
     public String status;
     public String uuid;
     public String end;
-    public Priority priority;
+    public TaskPriority priority;
     public String project;
     public Annotation[] annotations;
 
@@ -32,7 +32,7 @@ public class Task {
         this.description = description;
         this.status = "pending";
         this.uuid = UUID.randomUUID().toString();
-        this.priority = Priority.TODAY;
+        this.priority = TaskPriority.TODAY;
 
         final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         this.entry = now.format(DATE_TIME_FORMATTER);

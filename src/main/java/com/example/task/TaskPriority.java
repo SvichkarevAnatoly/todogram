@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Зарезервированные значения приоритетов
  */
-public enum Priority {
+public enum TaskPriority {
     @JsonProperty("H")
     TODAY,
     @JsonProperty("M")

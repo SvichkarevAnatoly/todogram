@@ -4,8 +4,8 @@ package com.example.bot;
 import com.example.project.ProjectService;
 import com.example.session.ContextHolder;
 import com.example.setting.SettingService;
-import com.example.task.Priority;
 import com.example.task.Task;
+import com.example.task.TaskPriority;
 import com.example.task.TaskService;
 import com.vdurmont.emoji.EmojiParser;
 import org.telegram.abilitybots.api.sender.MessageSender;
@@ -60,7 +60,7 @@ public class BotControllerImpl implements BotController {
     public void action(String command) {
         if ("start".equals(command)) {
             showKeyboard(context.getUpdate());
-            listPendingTasks(context.getUpdate(), Priority.TODAY);
+            listPendingTasks(context.getUpdate(), TaskPriority.TODAY);
         }
     }
 
@@ -69,13 +69,13 @@ public class BotControllerImpl implements BotController {
             final String text = update.getMessage().getText();
             switch (text) {
                 case "Сегодня":
-                    listPendingTasks(update, Priority.TODAY);
+                    listPendingTasks(update, TaskPriority.TODAY);
                     break;
                 case "Неделя":
-                    listPendingTasks(update, Priority.WEEK);
+                    listPendingTasks(update, TaskPriority.WEEK);
                     break;
                 case "Потом":
-                    listPendingTasks(update, Priority.LATER);
+                    listPendingTasks(update, TaskPriority.LATER);
                     break;
                 case "Завершенные":
                     listCompletedTasks(update);
@@ -88,7 +88,7 @@ public class BotControllerImpl implements BotController {
                     break;
                 default:
                     createTask(update);
-                    listPendingTasks(update, Priority.TODAY);
+                    listPendingTasks(update, TaskPriority.TODAY);
                     break;
             }
         } else {
@@ -118,7 +118,7 @@ public class BotControllerImpl implements BotController {
         }
     }
 
-    private void listPendingTasks(Update update, Priority priority) {
+    private void listPendingTasks(Update update, TaskPriority priority) {
         final List<Task> tasks = taskService.getPriorityPendingTasks(priority);
 
         final SendMessage message;
@@ -147,7 +147,7 @@ public class BotControllerImpl implements BotController {
         }
     }
 
-    private void listIndividualPendingTasks(Update update, Priority priority) {
+    private void listIndividualPendingTasks(Update update, TaskPriority priority) {
         sendEveryTask(update, taskService.getPriorityPendingTasks(priority));
     }
 
@@ -202,13 +202,13 @@ public class BotControllerImpl implements BotController {
     private void parseCallbackQuery(Update update) {
         final String data = update.getCallbackQuery().getData();
         if (data.equals("Подробнее H")) {
-            listIndividualPendingTasks(update, Priority.TODAY);
+            listIndividualPendingTasks(update, TaskPriority.TODAY);
             deleteMessage(update);
         } else if (data.equals("Подробнее M")) {
-            listIndividualPendingTasks(update, Priority.WEEK);
+            listIndividualPendingTasks(update, TaskPriority.WEEK);
             deleteMessage(update);
         } else if (data.equals("Подробнее L")) {
-            listIndividualPendingTasks(update, Priority.LATER);
+            listIndividualPendingTasks(update, TaskPriority.LATER);
             deleteMessage(update);
         } else if (data.startsWith("done ")) {
             final String taskUuid = data.substring("done ".length());

@@ -15,4 +15,11 @@ public interface BotController {
      * Обработка сообщения
      */
     void action();
+
+    /**
+     * Обработка сообщения с командой
+     *
+     * @param command Команда
+     */
+    void action(String command);
 }

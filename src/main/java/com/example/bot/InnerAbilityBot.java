@@ -38,8 +38,7 @@ public class InnerAbilityBot extends AbilityBot {
                 .input(0)
                 .locality(ALL)
                 .privacy(PUBLIC)
-                .action(this::action)
-                // .post(ctx -> listPendingTasks(ctx.update(), "H"))
+                .action(ctx -> actionWithCommand("start", ctx))
                 .build();
     }
 
@@ -53,9 +52,13 @@ public class InnerAbilityBot extends AbilityBot {
                 .build();
     }
 
+    private void actionWithCommand(String command, MessageContext ctx) {
+        contextHolder.setContext(ctx);
+        controller.action(command);
+    }
+
     private void action(MessageContext ctx) {
         contextHolder.setContext(ctx);
         controller.action();
-        // showKeyboard(ctx.update());
     }
 }

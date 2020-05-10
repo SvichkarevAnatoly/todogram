@@ -55,6 +55,14 @@ public class BotControllerImpl implements BotController {
         router(context.getUpdate());
     }
 
+    @Override
+    public void action(String command) {
+        if ("start".equals(command)) {
+            showKeyboard(context.getUpdate());
+            listPendingTasks(context.getUpdate(), "H");
+        }
+    }
+
     private void router(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             final String text = update.getMessage().getText();

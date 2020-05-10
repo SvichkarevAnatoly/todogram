@@ -1,7 +1,6 @@
 package com.example.bot;
 
 import com.example.session.ContextHolder;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.telegram.abilitybots.api.db.DBContext;
-import org.telegram.abilitybots.api.db.MapDBContext;
 import org.telegram.abilitybots.api.objects.MessageContext;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -22,10 +20,10 @@ import static org.mockito.Mockito.verify;
 
 class InnerAbilityBotTest {
 
-    // Your bot handle here
     private InnerAbilityBot bot;
-    private DBContext db;
 
+    @Mock
+    private DBContext db;
     @Mock
     private BotController botController;
     @Mock
@@ -41,16 +39,8 @@ class InnerAbilityBotTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        // Offline instance will get deleted at JVM shutdown
-        db = MapDBContext.offlineInstance("test");
         bot = new InnerAbilityBot(botController, contextHolder,
                 null, null, db, new DefaultBotOptions());
-    }
-
-    // We should clear the DB after every test as such
-    @AfterEach
-    public void tearDown() {
-        db.clear();
     }
 
     @Test

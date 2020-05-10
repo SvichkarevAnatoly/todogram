@@ -4,6 +4,7 @@ import com.example.bot.InnerAbilityBot;
 import com.example.config.BotConfig;
 import com.example.config.SecurityConfig;
 import com.example.task.TaskService;
+import com.example.task.TaskServiceImpl;
 import com.example.task.TaskStorage;
 import com.example.task.warrior.TaskWarriorService;
 import org.aeonbits.owner.ConfigCache;
@@ -58,7 +59,7 @@ public class BotConfiguration {
 
     @Bean
     public TaskService taskService() {
-        return new TaskService(new TaskWarriorService(), new TaskStorage());
+        return new TaskServiceImpl(new TaskWarriorService(), new TaskStorage());
     }
 
     @Bean

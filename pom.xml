@@ -23,6 +23,7 @@
         <webjars-jquery-ui.version>1.12.1</webjars-jquery-ui.version>
         <webjars-jquery.version>3.3.1-1</webjars-jquery.version>
         <telegrambots.version>4.8.1</telegrambots.version>
+        <mongodb-driver-sync.version>3.11.0</mongodb-driver-sync.version>
     </properties>
 
     <dependencies>
@@ -50,8 +51,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

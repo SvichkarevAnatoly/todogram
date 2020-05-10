@@ -1,93 +1,26 @@
 package com.example.task;
 
-import com.example.task.warrior.TaskWarriorService;
-
-import javax.annotation.PostConstruct;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
-import static com.example.task.Task.DATE_TIME_FORMATTER;
+public interface TaskService {
 
-public class TaskService {
+    List<Task> getAllTasks();
 
-    private final TaskWarriorService taskWarriorService;
-    private final TaskStorage taskStorage;
+    List<Task> getPendingTasks();
 
-    public TaskService(TaskWarriorService taskWarriorService, TaskStorage taskStorage) {
-        this.taskWarriorService = taskWarriorService;
-        this.taskStorage = taskStorage;
-    }
+    List<Task> getPriorityPendingTasks(String priority);
 
-    @PostConstruct
-    public void init() {
-        updateStorage();
-    }
+    List<Task> getCompletedTasks();
 
-    public List<Task> getAllTasks() {
-        return taskStorage.getAllTasks();
-    }
+    List<Task> getDeletedTasks();
 
-    public List<Task> getPendingTasks() {
-        return taskStorage.getPendingTasks();
-    }
+    Task getTaskByUuid(String uuid);
 
-    public List<Task> getPriorityPendingTasks(String priority) {
-        return taskStorage.getPriorityPendingTasks(priority);
-    }
+    void createTask(Task task);
 
-    public List<Task> getCompletedTasks() {
-        return taskStorage.getCompletedTasks();
-    }
+    void setStatusCompleted(Task taskForDone);
 
-    public List<Task> getDeletedTasks() {
-        return taskStorage.getDeletedTasks();
-    }
+    void setStatusDeleted(Task taskForDelete);
 
-    public Task getTaskByUuid(String uuid) {
-        return taskStorage.getTaskByUuid(uuid);
-    }
-
-    public void createTask(Task task) {
-        taskWarriorService.pushTask(task);
-        updateStorage();
-    }
-
-    public void setStatusCompleted(Task taskForDone) {
-        final Task originalTask = getTaskByUuid(taskForDone.uuid);
-        originalTask.status = "completed";
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        originalTask.end = now.format(DATE_TIME_FORMATTER);
-        originalTask.modified = now.format(DATE_TIME_FORMATTER);
-
-        taskWarriorService.pushTask(originalTask);
-        updateStorage();
-    }
-
-    public void setStatusDeleted(Task taskForDelete) {
-        final Task originalTask = getTaskByUuid(taskForDelete.uuid);
-        originalTask.status = "deleted";
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        originalTask.end = now.format(DATE_TIME_FORMATTER);
-        originalTask.modified = now.format(DATE_TIME_FORMATTER);
-
-        taskWarriorService.pushTask(originalTask);
-        updateStorage();
-    }
-
-    public void changePriority(Task task, String priority) {
-        final Task originalTask = getTaskByUuid(task.uuid);
-        originalTask.priority = priority;
-        final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        originalTask.modified = now.format(DATE_TIME_FORMATTER);
-
-        taskWarriorService.pushTask(originalTask);
-        updateStorage();
-    }
-
-    // TODO: Реализовать настоящий update с добавлением только инкремента
-    private void updateStorage() {
-        final List<Task> tasks = taskWarriorService.fetchAllTasks();
-        taskStorage.load(tasks);
-    }
+    void changePriority(Task task, String priority);
 }

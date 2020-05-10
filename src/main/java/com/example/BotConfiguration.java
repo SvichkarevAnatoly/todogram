@@ -1,10 +1,13 @@
 package com.example;
 
+import com.example.bot.BotController;
+import com.example.bot.BotControllerImpl;
 import com.example.bot.InnerAbilityBot;
 import com.example.config.BotConfig;
 import com.example.config.SecurityConfig;
 import com.example.project.ProjectRepository;
 import com.example.project.ProjectService;
+import com.example.session.ContextHolder;
 import com.example.setting.SettingRepository;
 import com.example.setting.SettingService;
 import com.example.task.TaskService;
@@ -62,6 +65,11 @@ public class BotConfiguration {
     }
 
     @Bean
+    public ContextHolder contextHolder() {
+        return new ContextHolder();
+    }
+
+    @Bean
     public TaskService taskService() {
         return new TaskServiceImpl(new TaskWarriorService(), new TaskStorage());
     }
@@ -77,19 +85,24 @@ public class BotConfiguration {
     }
 
     @Bean
+    public BotController botController(ContextHolder contextHolder,
+                                       TaskService taskService, ProjectService projectService, SettingService settingService) {
+        return new BotControllerImpl(contextHolder, taskService, projectService, settingService);
+    }
+
+    @Bean
     public DBContext dbContext(SecurityConfig securityConfig) {
         return MapDBContext.onlineInstance(securityConfig.botName());
     }
 
     @Bean
     public InnerAbilityBot innerAbilityBot(
-            TaskService taskService, ProjectService projectService, SettingService settingService,
+            BotController botController, ContextHolder contextHolder,
             SecurityConfig securityConfig,
             DBContext db, DefaultBotOptions botOptions) {
         return new InnerAbilityBot(
-                taskService,
-                projectService,
-                settingService,
+                botController,
+                contextHolder,
                 securityConfig.botToken(),
                 securityConfig.botName(),
                 db,

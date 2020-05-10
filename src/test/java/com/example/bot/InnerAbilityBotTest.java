@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.telegram.abilitybots.api.db.DBContext;
 import org.telegram.abilitybots.api.sender.MessageSender;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -62,13 +61,13 @@ class InnerAbilityBotTest {
         MockitoAnnotations.initMocks(this);
 
         // Create your bot
-        bot = new InnerAbilityBot(null, null, null, null, null, db, new DefaultBotOptions());
+        bot = null;//new InnerAbilityBot(null, null, null, null, null, db, new DefaultBotOptions());
         // Set your bot sender to the mocked sender
         // THIS is the line that prevents your bot from communicating with Telegram servers when it's running its own abilities
         // All method calls will go through the mocked interface -> which would do nothing except logging the fact that you've called this function with the specific arguments
-        bot.setSender(sender);
+        // bot.setSender(sender);
         // Прокси для перехвата итогового сообщения - спасибо "отличному" api
-        bot.setProxy(proxy);
+        // bot.setProxy(proxy);
     }
 
     // We should clear the DB after every test as such

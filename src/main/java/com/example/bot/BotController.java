@@ -1,5 +1,6 @@
 package com.example.bot;
 
+import com.example.bot.ui.TelegramCommand;
 import org.telegram.abilitybots.api.sender.MessageSender;
 
 public interface BotController {
@@ -21,5 +22,5 @@ public interface BotController {
      *
      * @param command Команда
      */
-    void action(String command);
+    void action(TelegramCommand command);
 }

@@ -1,6 +1,7 @@
 package com.example.bot;
 
 
+import com.example.bot.ui.TelegramCommand;
 import com.example.project.ProjectService;
 import com.example.session.ContextHolder;
 import com.example.setting.SettingService;
@@ -57,10 +58,12 @@ public class BotControllerImpl implements BotController {
     }
 
     @Override
-    public void action(String command) {
-        if ("start".equals(command)) {
-            showKeyboard(context.getUpdate());
-            listPendingTasks(context.getUpdate(), TaskPriority.TODAY);
+    public void action(TelegramCommand command) {
+        switch (command) {
+            case START:
+                showKeyboard(context.getUpdate());
+                listPendingTasks(context.getUpdate(), TaskPriority.TODAY);
+                break;
         }
     }
 

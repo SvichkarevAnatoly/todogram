@@ -1,5 +1,6 @@
 package com.example.bot;
 
+import com.example.bot.ui.TelegramCommand;
 import com.example.session.ContextHolder;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.db.DBContext;
@@ -7,6 +8,7 @@ import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.MessageContext;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 
+import static com.example.bot.ui.TelegramCommand.START;
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
@@ -34,11 +36,11 @@ public class InnerAbilityBot extends AbilityBot {
 
     public Ability start() {
         return Ability.builder()
-                .name("start")
+                .name(START.toString())
                 .input(0)
                 .locality(ALL)
                 .privacy(PUBLIC)
-                .action(ctx -> actionWithCommand("start", ctx))
+                .action(ctx -> actionWithCommand(START, ctx))
                 .build();
     }
 
@@ -52,7 +54,7 @@ public class InnerAbilityBot extends AbilityBot {
                 .build();
     }
 
-    private void actionWithCommand(String command, MessageContext ctx) {
+    private void actionWithCommand(TelegramCommand command, MessageContext ctx) {
         contextHolder.setContext(ctx);
         controller.action(command);
     }

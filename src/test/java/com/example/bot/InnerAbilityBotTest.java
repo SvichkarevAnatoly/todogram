@@ -1,5 +1,6 @@
 package com.example.bot;
 
+import com.example.bot.ui.TelegramCommand;
 import com.example.session.ContextHolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -58,7 +59,7 @@ class InnerAbilityBotTest {
         verify(contextHolder).setContext(contextCaptor.capture());
         assertEquals(messageContext, contextCaptor.getValue());
 
-        verify(botController).action("start");
+        verify(botController).action(TelegramCommand.START);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.example.bot;
 
+import com.example.project.ProjectService;
 import com.example.task.Task;
 import com.example.task.TaskService;
 import com.vdurmont.emoji.EmojiParser;
@@ -36,16 +37,18 @@ import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 public class InnerAbilityBot extends AbilityBot {
 
     private TaskService taskService;
+    private ProjectService projectService;
 
     /**
      * Для тестирования дурацкой реализации telegram api
      */
     private Function<SendAnimation, SendAnimation> proxy;
 
-    public InnerAbilityBot(TaskService taskService,
+    public InnerAbilityBot(TaskService taskService, ProjectService projectService,
                            String botToken, String botUsername, DBContext db, DefaultBotOptions botOptions) {
         super(botToken, botUsername, db, botOptions);
         this.taskService = taskService;
+        this.projectService = projectService;
     }
 
     // Для тестов
@@ -102,6 +105,9 @@ public class InnerAbilityBot extends AbilityBot {
                 case "Удалённые":
                     listDeletedTasks(update);
                     break;
+                case "Проекты":
+                    showProjects(update);
+                    break;
                 default:
                     createTask(update);
                     listPendingTasks(update, "H");
@@ -112,6 +118,12 @@ public class InnerAbilityBot extends AbilityBot {
                 parseCallbackQuery(update);
             }
         }
+    }
+
+    private void showProjects(Update update) {
+        final List<String> projects = projectService.getProjects();
+        final String text = String.join("\n", projects);
+        sendText(text, update);
     }
 
     private void showKeyboard(Update update) {
@@ -197,12 +209,14 @@ public class InnerAbilityBot extends AbilityBot {
     private ReplyKeyboardMarkup createKeyboard() {
         final KeyboardRow row1 = new KeyboardRow();
         final KeyboardRow row2 = new KeyboardRow();
+        final KeyboardRow row3 = new KeyboardRow();
         row1.add("Сегодня");
         row1.add("Неделя");
         row1.add("Потом");
         row2.add("Завершенные");
         row2.add("Удалённые");
-        return new ReplyKeyboardMarkup(asList(row1, row2));
+        row3.add("Проекты");
+        return new ReplyKeyboardMarkup(asList(row1, row2, row3));
     }
 
     private void parseCallbackQuery(Update update) {

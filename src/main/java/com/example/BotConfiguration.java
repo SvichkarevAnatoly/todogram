@@ -3,6 +3,8 @@ package com.example;
 import com.example.bot.InnerAbilityBot;
 import com.example.config.BotConfig;
 import com.example.config.SecurityConfig;
+import com.example.project.ProjectRepository;
+import com.example.project.ProjectService;
 import com.example.task.TaskService;
 import com.example.task.TaskServiceImpl;
 import com.example.task.TaskStorage;
@@ -63,16 +65,22 @@ public class BotConfiguration {
     }
 
     @Bean
+    public ProjectService projectService(ProjectRepository projectRepository) {
+        return new ProjectService(projectRepository);
+    }
+
+    @Bean
     public DBContext dbContext(SecurityConfig securityConfig) {
         return MapDBContext.onlineInstance(securityConfig.botName());
     }
 
     @Bean
-    public InnerAbilityBot innerAbilityBot(TaskService taskService,
+    public InnerAbilityBot innerAbilityBot(TaskService taskService, ProjectService projectService,
                                            SecurityConfig securityConfig,
                                            DBContext db, DefaultBotOptions botOptions) {
         return new InnerAbilityBot(
                 taskService,
+                projectService,
                 securityConfig.botToken(),
                 securityConfig.botName(),
                 db,

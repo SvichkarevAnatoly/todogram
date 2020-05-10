@@ -44,14 +44,14 @@ public class TaskStorage {
      */
     public List<Task> getPendingTasks() {
         return tasks.values().stream()
-                .filter(task -> "pending".equals(task.status))
+                .filter(task -> task.status == TaskStatus.PENDING)
                 .collect(toList());
     }
 
     public List<Task> getPriorityPendingTasks(TaskPriority priority) {
         return tasks.values().stream()
-                .filter(task -> "pending".equals(task.status)
-                        && priority.equals(task.priority))
+                .filter(task -> task.status == TaskStatus.PENDING)
+                .filter(task -> priority.equals(task.priority))
                 .sorted((task1, task2) ->
                         LocalDateTime.parse(task2.modified, DATE_TIME_FORMATTER)
                                 .compareTo(LocalDateTime.parse(task1.modified, DATE_TIME_FORMATTER)))
@@ -72,7 +72,7 @@ public class TaskStorage {
      */
     public List<Task> getCompletedTasks() {
         return tasks.values().stream()
-                .filter(task -> "completed".equals(task.status))
+                .filter(task -> task.status == TaskStatus.COMPLETED)
                 // Чтобы не падали на некорректных данных
                 .filter(task -> task.end != null)
                 .sorted((task1, task2) ->
@@ -83,7 +83,7 @@ public class TaskStorage {
 
     public List<Task> getDeletedTasks() {
         return tasks.values().stream()
-                .filter(task -> "deleted".equals(task.status))
+                .filter(task -> TaskStatus.DELETED == task.status)
                 // Чтобы не падали на некорректных данных
                 .filter(task -> task.end != null)
                 .sorted((task1, task2) ->

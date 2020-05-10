@@ -55,7 +55,7 @@ public class TaskServiceImpl implements TaskService {
 
     public void setStatusCompleted(Task taskForDone) {
         final Task originalTask = getTaskByUuid(taskForDone.uuid);
-        originalTask.status = "completed";
+        originalTask.status = TaskStatus.COMPLETED;
         final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         originalTask.end = now.format(DATE_TIME_FORMATTER);
         originalTask.modified = now.format(DATE_TIME_FORMATTER);
@@ -66,7 +66,7 @@ public class TaskServiceImpl implements TaskService {
 
     public void setStatusDeleted(Task taskForDelete) {
         final Task originalTask = getTaskByUuid(taskForDelete.uuid);
-        originalTask.status = "deleted";
+        originalTask.status = TaskStatus.DELETED;
         final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         originalTask.end = now.format(DATE_TIME_FORMATTER);
         originalTask.modified = now.format(DATE_TIME_FORMATTER);

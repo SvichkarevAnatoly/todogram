@@ -18,7 +18,7 @@ public class Task {
     public String description;
     public String entry;
     public String modified;
-    public String status;
+    public TaskStatus status;
     public String uuid;
     public String end;
     public TaskPriority priority;
@@ -30,7 +30,7 @@ public class Task {
 
     public Task(String description) {
         this.description = description;
-        this.status = "pending";
+        this.status = TaskStatus.PENDING;
         this.uuid = UUID.randomUUID().toString();
         this.priority = TaskPriority.TODAY;
 

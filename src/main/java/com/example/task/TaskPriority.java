@@ -3,7 +3,7 @@ package com.example.task;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Зарезервированные значения приоритетов
+ * Зарезервированные значения приоритетов задач
  */
 public enum TaskPriority {
     @JsonProperty("H")

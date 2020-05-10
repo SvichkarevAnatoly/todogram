@@ -42,7 +42,7 @@ public class InnerAbilityBot extends AbilityBot {
                 .build();
     }
 
-    public Ability common() {
+    public Ability general() {
         return Ability.builder()
                 .name(DEFAULT)
                 .input(0)

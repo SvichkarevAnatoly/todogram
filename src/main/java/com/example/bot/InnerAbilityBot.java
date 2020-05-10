@@ -1,6 +1,7 @@
 package com.example.bot;
 
 import com.example.project.ProjectService;
+import com.example.setting.SettingService;
 import com.example.task.Task;
 import com.example.task.TaskService;
 import com.vdurmont.emoji.EmojiParser;
@@ -36,19 +37,22 @@ import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
  */
 public class InnerAbilityBot extends AbilityBot {
 
-    private TaskService taskService;
-    private ProjectService projectService;
+    private final TaskService taskService;
+    private final ProjectService projectService;
+    private final SettingService settingService;
 
     /**
      * Для тестирования дурацкой реализации telegram api
      */
     private Function<SendAnimation, SendAnimation> proxy;
 
-    public InnerAbilityBot(TaskService taskService, ProjectService projectService,
-                           String botToken, String botUsername, DBContext db, DefaultBotOptions botOptions) {
+    public InnerAbilityBot
+            (TaskService taskService, ProjectService projectService, SettingService settingService,
+             String botToken, String botUsername, DBContext db, DefaultBotOptions botOptions) {
         super(botToken, botUsername, db, botOptions);
         this.taskService = taskService;
         this.projectService = projectService;
+        this.settingService = settingService;
     }
 
     // Для тестов
@@ -190,6 +194,8 @@ public class InnerAbilityBot extends AbilityBot {
 
     private void createTask(Update update) {
         final Task newTask = new Task(update.getMessage().getText());
+        final String userName = update.getMessage().getFrom().getUserName();
+        newTask.project = settingService.getDefaultProject(userName);
         taskService.createTask(newTask);
 
         sendText("Задача создана", update);

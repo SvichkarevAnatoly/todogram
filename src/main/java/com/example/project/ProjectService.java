@@ -12,8 +12,9 @@ public class ProjectService {
     }
 
     public List<String> getProjects() {
+        // TODO: Можено вроде явно из репозитория запросить
         return repository.findAll().stream()
-                .map(project -> project.name)
+                .map(Project::getName)
                 .collect(Collectors.toList());
     }
 }

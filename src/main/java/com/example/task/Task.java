@@ -22,6 +22,7 @@ public class Task {
     public String uuid;
     public String end;
     public String priority;
+    public String project;
     public Annotation[] annotations;
 
     public Task() {

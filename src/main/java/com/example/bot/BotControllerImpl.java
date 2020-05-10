@@ -4,6 +4,7 @@ package com.example.bot;
 import com.example.project.ProjectService;
 import com.example.session.ContextHolder;
 import com.example.setting.SettingService;
+import com.example.task.Priority;
 import com.example.task.Task;
 import com.example.task.TaskService;
 import com.vdurmont.emoji.EmojiParser;
@@ -59,7 +60,7 @@ public class BotControllerImpl implements BotController {
     public void action(String command) {
         if ("start".equals(command)) {
             showKeyboard(context.getUpdate());
-            listPendingTasks(context.getUpdate(), "H");
+            listPendingTasks(context.getUpdate(), Priority.TODAY);
         }
     }
 
@@ -68,13 +69,13 @@ public class BotControllerImpl implements BotController {
             final String text = update.getMessage().getText();
             switch (text) {
                 case "Сегодня":
-                    listPendingTasks(update, "H");
+                    listPendingTasks(update, Priority.TODAY);
                     break;
                 case "Неделя":
-                    listPendingTasks(update, "M");
+                    listPendingTasks(update, Priority.WEEK);
                     break;
                 case "Потом":
-                    listPendingTasks(update, "L");
+                    listPendingTasks(update, Priority.LATER);
                     break;
                 case "Завершенные":
                     listCompletedTasks(update);
@@ -87,7 +88,7 @@ public class BotControllerImpl implements BotController {
                     break;
                 default:
                     createTask(update);
-                    listPendingTasks(update, "H");
+                    listPendingTasks(update, Priority.TODAY);
                     break;
             }
         } else {
@@ -117,7 +118,7 @@ public class BotControllerImpl implements BotController {
         }
     }
 
-    private void listPendingTasks(Update update, String priority) {
+    private void listPendingTasks(Update update, Priority priority) {
         final List<Task> tasks = taskService.getPriorityPendingTasks(priority);
 
         final SendMessage message;
@@ -146,7 +147,7 @@ public class BotControllerImpl implements BotController {
         }
     }
 
-    private void listIndividualPendingTasks(Update update, String priority) {
+    private void listIndividualPendingTasks(Update update, Priority priority) {
         sendEveryTask(update, taskService.getPriorityPendingTasks(priority));
     }
 
@@ -201,13 +202,13 @@ public class BotControllerImpl implements BotController {
     private void parseCallbackQuery(Update update) {
         final String data = update.getCallbackQuery().getData();
         if (data.equals("Подробнее H")) {
-            listIndividualPendingTasks(update, "H");
+            listIndividualPendingTasks(update, Priority.TODAY);
             deleteMessage(update);
         } else if (data.equals("Подробнее M")) {
-            listIndividualPendingTasks(update, "M");
+            listIndividualPendingTasks(update, Priority.WEEK);
             deleteMessage(update);
         } else if (data.equals("Подробнее L")) {
-            listIndividualPendingTasks(update, "L");
+            listIndividualPendingTasks(update, Priority.LATER);
             deleteMessage(update);
         } else if (data.startsWith("done ")) {
             final String taskUuid = data.substring("done ".length());

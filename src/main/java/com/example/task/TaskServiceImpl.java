@@ -32,7 +32,7 @@ public class TaskServiceImpl implements TaskService {
         return taskStorage.getPendingTasks();
     }
 
-    public List<Task> getPriorityPendingTasks(String priority) {
+    public List<Task> getPriorityPendingTasks(Priority priority) {
         return taskStorage.getPriorityPendingTasks(priority);
     }
 
@@ -77,7 +77,7 @@ public class TaskServiceImpl implements TaskService {
 
     public void changePriority(Task task, String priority) {
         final Task originalTask = getTaskByUuid(task.uuid);
-        originalTask.priority = priority;
+        originalTask.priority = Priority.TODAY;
         final OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         originalTask.modified = now.format(DATE_TIME_FORMATTER);
 

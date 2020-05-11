@@ -1,6 +1,8 @@
-package com.example.statemachine;
+package com.example.statemachine.action;
 
 import com.example.session.ContextHolder;
+import com.example.statemachine.Events;
+import com.example.statemachine.States;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;

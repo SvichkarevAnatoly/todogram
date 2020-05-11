@@ -1,6 +1,8 @@
-package com.example.statemachine;
+package com.example.statemachine.action;
 
 import com.example.session.ContextHolder;
+import com.example.statemachine.Events;
+import com.example.statemachine.States;
 import com.example.task.Task;
 import com.example.task.TaskPriority;
 import com.example.task.TaskService;

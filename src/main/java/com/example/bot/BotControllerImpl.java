@@ -5,6 +5,7 @@ import com.example.project.ProjectService;
 import com.example.session.ContextHolder;
 import com.example.setting.SettingService;
 import com.example.statemachine.Events;
+import com.example.statemachine.StateMachineFactoryHelper;
 import com.example.statemachine.States;
 import com.example.task.Task;
 import com.example.task.TaskPriority;
@@ -12,7 +13,6 @@ import com.example.task.TaskService;
 import com.vdurmont.emoji.EmojiParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.config.StateMachineFactory;
 import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -37,7 +37,7 @@ public class BotControllerImpl implements BotController {
     private MessageSender sender;
     private final ContextHolder context;
 
-    private StateMachineFactory<States, Events> stateMachineFactory;
+    private StateMachineFactoryHelper stateMachineFactoryHelper;
 
     private final TaskService taskService;
     private final ProjectService projectService;
@@ -54,14 +54,14 @@ public class BotControllerImpl implements BotController {
     }
 
     @Autowired
-    public void setStateMachineFactory(StateMachineFactory<States, Events> stateMachineFactory) {
-        this.stateMachineFactory = stateMachineFactory;
+    public void setStateMachineFactoryHelper(StateMachineFactoryHelper stateMachineFactoryHelper) {
+        this.stateMachineFactoryHelper = stateMachineFactoryHelper;
     }
 
     @Override
     public void action() {
         final String userName = context.getUser().getUserName();
-        final StateMachine<States, Events> stateMachine = stateMachineFactory.getStateMachine(userName);
+        final StateMachine<States, Events> stateMachine = stateMachineFactoryHelper.getStateMachine(userName);
 
         final States currentState = stateMachine.getState().getId();
         stateMachine.getTransitions().stream()
@@ -70,6 +70,7 @@ public class BotControllerImpl implements BotController {
                 .filter(transition -> transition.transit(null))
                 .findFirst()
                 .ifPresent(transition -> stateMachine.sendEvent(transition.getTrigger().getEvent()));
+        stateMachineFactoryHelper.saveState(stateMachine, userName);
     }
 
     private void router(Update update) {

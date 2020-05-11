@@ -1,12 +1,17 @@
 package com.example.statemachine;
 
+import com.example.statemachine.action.ShowMainKeyboard;
+import com.example.statemachine.action.ShowTodayTasks;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.persist.DefaultStateMachinePersister;
+import org.springframework.statemachine.persist.StateMachinePersister;
 
 import java.util.EnumSet;
 
@@ -45,6 +50,22 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
                 .withExternal()
                 .source(States.SETTINGS).target(States.MAIN_KEYBOARD)
                 .event(Events.PRESS_GO_TO_MAIN_KEYBOARD);
+    }
+
+    @Bean
+    public StateMachineFactoryHelper stateMachineFactoryHelper() {
+        return new StateMachineFactoryHelper();
+    }
+
+    @Bean
+    public StateMachinePersist<States, Events, String> inMemoryPersist() {
+        return new InMemoryPersist();
+    }
+
+    @Bean
+    public StateMachinePersister<States, Events, String> persister(
+            StateMachinePersist<States, Events, String> defaultPersist) {
+        return new DefaultStateMachinePersister<>(defaultPersist);
     }
 
     @Bean

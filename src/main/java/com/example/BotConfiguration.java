@@ -65,11 +65,6 @@ public class BotConfiguration {
     }
 
     @Bean
-    public ContextHolder contextHolder() {
-        return new ContextHolder();
-    }
-
-    @Bean
     public TaskService taskService() {
         return new TaskServiceImpl(new TaskWarriorService(), new TaskStorage());
     }
@@ -85,9 +80,15 @@ public class BotConfiguration {
     }
 
     @Bean
+    public ContextHolder contextHolder() {
+        return new ContextHolder();
+    }
+
+    @Bean
     public BotController botController(ContextHolder contextHolder,
                                        TaskService taskService, ProjectService projectService, SettingService settingService) {
-        return new BotControllerImpl(contextHolder, taskService, projectService, settingService);
+        return new BotControllerImpl(contextHolder,
+                taskService, projectService, settingService);
     }
 
     @Bean
@@ -97,7 +98,8 @@ public class BotConfiguration {
 
     @Bean
     public InnerAbilityBot innerAbilityBot(
-            BotController botController, ContextHolder contextHolder,
+            BotController botController,
+            ContextHolder contextHolder,
             SecurityConfig securityConfig,
             DBContext db, DefaultBotOptions botOptions) {
         return new InnerAbilityBot(
